@@ -34,6 +34,8 @@ public class RuleManager : MonoBehaviour
     void Start()
     {
         //AddRule(availableRules.Find(r => r.ruleName == "Sprint"));
+        //AddRule(availableRules.Find(r => r.ruleName == "Quantum Tunelling"));
+        AddRule(availableRules.Find(r => r.ruleName == "Mystical Sheild"));
     }
 
     void Update()
@@ -76,6 +78,7 @@ public class RuleManager : MonoBehaviour
         activeRules.Add(rule);
         rule.OnRuleSelected();
         rule.ActivateRule(playerController);
+        rule.isActive = true;
 
         OnRulesChanged?.Invoke();
         return true;
@@ -92,6 +95,7 @@ public class RuleManager : MonoBehaviour
         rule.DeactivateRule(playerController);
         rule.OnRuleRemoved();
         activeRules.Remove(rule);
+        rule.isActive = false;
 
         OnRulesChanged?.Invoke();
         return true;

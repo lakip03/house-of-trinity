@@ -1,0 +1,54 @@
+using UnityEngine;
+
+[CreateAssetMenu(fileName = "ColdFeet", menuName = "Rules/Restrictions/Cold Feet")]
+public class ColdFeet : Rule
+{
+    [Header("Movement Tracking")]
+    public float maxIdleTime = 2f;
+    public float movementThreshold = 0.1f;
+    
+    private float timeSinceLastMovement = 0f;
+    private Vector2 lastPlayerPosition;
+    private bool hasInitializedPosition = false;
+    
+    public override void ActivateRule(PlayerController player)
+    {
+        if (player != null)
+        {
+            lastPlayerPosition = player.transform.position;
+            timeSinceLastMovement = 0f;
+            hasInitializedPosition = true;
+            Debug.Log($"Cold Feet restriction activated! You must move every {maxIdleTime} seconds or it's GAME OVER!");
+        }
+    }
+    
+    public override void DeactivateRule(PlayerController player)
+    {
+        timeSinceLastMovement = 0f;
+        hasInitializedPosition = false;
+        Debug.Log("Cold Feet restriction deactivated.");
+    }
+    
+    public override void UpdateRule(PlayerController player, float deltaTime)
+    {
+        if (player == null || !hasInitializedPosition) return;
+        
+        Vector2 currentPosition = player.transform.position;
+        float distanceMoved = Vector2.Distance(currentPosition, lastPlayerPosition);
+        
+        if (distanceMoved > movementThreshold)
+        {
+            timeSinceLastMovement = 0f;
+            lastPlayerPosition = currentPosition;
+        }
+        else
+        {
+            timeSinceLastMovement += deltaTime;
+            
+            if (timeSinceLastMovement >= maxIdleTime)
+            {
+                Debug.Log("GAME OVER!");
+            }
+        }
+    }
+}

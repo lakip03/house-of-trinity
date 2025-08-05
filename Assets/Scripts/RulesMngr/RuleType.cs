@@ -1,8 +1,7 @@
 public enum RuleType
 {
     Movement,
-    Interaction,
-    Resource,
+    Health,
     Temporal,
     Restriction
 }
