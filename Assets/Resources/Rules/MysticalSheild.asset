@@ -12,10 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 468523ff86995836f9a517eacecfc6a1, type: 3}
   m_Name: MysticalSheild
   m_EditorClassIdentifier: 
-  ruleName: 
-  ruleDescription: 
-  ruleType: 0
+  ruleName: Mystical Sheild
+  ruleDescription: You are immune to all enemyes for 20 secounds
+  ruleType: 1
   ruleCard: {fileID: 0}
   isActive: 0
-  duration: -1
-  invincibilityDuration: 20
+  duration: 20
+  shieldDuration: 20
+  blocksAllCollisions: 1

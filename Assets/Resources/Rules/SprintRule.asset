@@ -16,5 +16,5 @@ MonoBehaviour:
   ruleDescription: You move at 2x normal speed
   ruleType: 0
   ruleCard: {fileID: 0}
-  isActive: 1
+  isActive: 0
   duration: -1

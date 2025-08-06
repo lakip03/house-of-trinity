@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ruleName: Cold Feet
   ruleDescription: YOu must move for at least 2 secounds
-  ruleType: 0
+  ruleType: 3
   ruleCard: {fileID: 0}
   isActive: 0
   duration: -1

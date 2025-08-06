@@ -39,6 +39,16 @@ public class PlayerController : MonoBehaviour
 
         SetPlayerColor(normalColor);
         moveAction = playerInput.actions["Move"];
+
+        if (RuleManager.Instance != null)
+        {
+            RuleManager.Instance.RegisterPlayerController(this);
+            Debug.Log("PlayerController registered with RuleManager");
+        }
+        else
+        {
+            Debug.LogError("RuleManager.Instance is null when PlayerController started!");
+        }
     }
 
     void Update()
@@ -198,10 +208,14 @@ public class PlayerController : MonoBehaviour
             GameStateManager gameStateManager = FindAnyObjectByType<GameStateManager>();
             gameStateManager.GameWon();
         }
-         if (other.CompareTag("enemy"))
+        if (other.CompareTag("enemy"))
         {
             Debug.Log("OH NO YOU DIED");
             GameStateManager gameStateManager = FindAnyObjectByType<GameStateManager>();
+            if (isInvincible)
+            {
+                return;
+            }
             gameStateManager.GameOver("Death by enemy");
         }
     }
