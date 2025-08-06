@@ -140,16 +140,7 @@ public class GameStateManager : MonoBehaviour
     
     public void RestartGame()
     {
-        Time.timeScale = 1f;
-        
-        HideGameOverScreen();
-        
-        if (player != null)
-        {
-            player.enabled = true;
-        }
-        
-        Debug.Log("Game Restarted");
+        //TBA
     }
     
     public void QuitGame()

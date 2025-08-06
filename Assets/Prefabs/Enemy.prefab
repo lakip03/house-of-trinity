@@ -12,8 +12,9 @@ GameObject:
   - component: {fileID: 1531841534083822118}
   - component: {fileID: 532062351995375028}
   - component: {fileID: 7332982205066736298}
+  - component: {fileID: 467568306494511171}
   m_Layer: 0
-  m_Name: Enemy-Prototype
+  m_Name: Enemy
   m_TagString: enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -27,13 +28,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 152601103763967040}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -23.82, y: 6.05, z: -4}
+  m_LocalRotation: {x: 0.00000037449766, y: -0.0000000026560782, z: -0.007071866, w: 0.999975}
+  m_LocalPosition: {x: -23.805857, y: 7.049899, z: -3.9999993}
   m_LocalScale: {x: 0.10478215, y: 0.10319512, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -360.81}
 --- !u!212 &1531841534083822118
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -162,3 +163,24 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &467568306494511171
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 152601103763967040}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67a8e6c9ecb8c7bbb9385db7caacae4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 0}
+  moveSpeed: 3
+  visionRange: 44.3
+  hearingRadius: 10.37
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 8
+  loseTargetTime: 0.8
+  rotationSpeed: 249
