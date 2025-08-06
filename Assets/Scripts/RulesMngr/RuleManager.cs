@@ -35,7 +35,8 @@ public class RuleManager : MonoBehaviour
     {
         //AddRule(availableRules.Find(r => r.ruleName == "Sprint"));
         //AddRule(availableRules.Find(r => r.ruleName == "Quantum Tunelling"));
-        AddRule(availableRules.Find(r => r.ruleName == "Mystical Sheild"));
+        //AddRule(availableRules.Find(r => r.ruleName == "Mystical Sheild"));
+        //AddRule(availableRules.Find(r => r.ruleName == "Cold Feet"));
     }
 
     void Update()

@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ea152cdb8cbfd669bdfbaed4f47204a, type: 3}
   m_Name: ColdFeet
   m_EditorClassIdentifier: 
-  ruleName: 
-  ruleDescription: 
+  ruleName: Cold Feet
+  ruleDescription: YOu must move for at least 2 secounds
   ruleType: 0
   ruleCard: {fileID: 0}
   isActive: 0
