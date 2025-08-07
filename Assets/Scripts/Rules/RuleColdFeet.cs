@@ -5,7 +5,7 @@ public class ColdFeet : Rule
 {
     [Header("Movement Tracking")]
     public float maxIdleTime = 2f;
-    public float movementThreshold = 0.1f; // Minimum movement to count as "moving"
+    public float movementThreshold = 0.1f;
     
     private float timeSinceLastMovement = 0f;
     private Vector2 lastPlayerPosition;

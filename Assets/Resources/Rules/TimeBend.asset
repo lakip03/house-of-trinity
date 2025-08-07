@@ -9,14 +9,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3ea152cdb8cbfd669bdfbaed4f47204a, type: 3}
-  m_Name: ColdFeet
+  m_Script: {fileID: 11500000, guid: 80ccfce0db2478c95b2fcb6925a4df50, type: 3}
+  m_Name: TimeBend
   m_EditorClassIdentifier: 
-  ruleName: Cold Feet
-  ruleDescription: You must move every second
+  ruleName: Time Bend
+  ruleDescription: You must finish the level in 20 secunds or die
   ruleType: 3
   ruleCard: {fileID: 0}
-  isActive: 1
+  isActive: 0
   duration: -1
-  maxIdleTime: 1
-  movementThreshold: 0.3
+  timeLimit: 20

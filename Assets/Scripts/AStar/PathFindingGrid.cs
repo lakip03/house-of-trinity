@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Analytics;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class PathFindingGrid : MonoBehaviour
 {
@@ -37,7 +39,6 @@ public class PathFindingGrid : MonoBehaviour
 
     void OnValidate()
     {
-        // Update grid origin when values change in editor
         UpdateGridOrigin();
     }
 
@@ -123,8 +124,6 @@ public class PathFindingGrid : MonoBehaviour
         return neighbors;
     }
 
-
-
     public void SetCurrentPath(List<Vector3> path)
     {
         currentPath = path;
@@ -138,23 +137,19 @@ public class PathFindingGrid : MonoBehaviour
 
     void OnDrawGizmos()
     {
-        // Always show in editor, optionally in play mode
         if (!showGrid || (!Application.isEditor && !showGridInPlayMode))
             return;
 
         UpdateGridOrigin();
 
-        // Draw grid origin
         Gizmos.color = gridOriginColor;
         Gizmos.DrawWireSphere(gridWorldOrigin, nodeSize * 0.3f);
 
-        // Draw grid bounds
         Vector3 gridCenter = gridWorldOrigin + new Vector3((gridWidth - 1) * nodeSize * 0.5f, (gridHeight - 1) * nodeSize * 0.5f, 0);
         Vector3 gridSize = new Vector3(gridWidth * nodeSize, gridHeight * nodeSize, 0);
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireCube(gridCenter, gridSize);
 
-        // Draw grid nodes
         if (grid != null)
         {
             for (int x = 0; x < gridWidth; x++)
@@ -169,7 +164,6 @@ public class PathFindingGrid : MonoBehaviour
         }
         else
         {
-            // Show preview grid when not playing
             for (int x = 0; x < gridWidth; x++)
             {
                 for (int y = 0; y < gridHeight; y++)
@@ -182,7 +176,6 @@ public class PathFindingGrid : MonoBehaviour
             }
         }
 
-        // Draw current path
         if (currentPath != null && currentPath.Count > 1)
         {
             Gizmos.color = pathColor;
@@ -197,23 +190,23 @@ public class PathFindingGrid : MonoBehaviour
 
     void OnDrawGizmosSelected()
     {
-        // Enhanced visualization when selected
         if (!showGrid) return;
 
         UpdateGridOrigin();
 
-        // Draw coordinate labels (only when selected to avoid clutter)
+#if UNITY_EDITOR
         if (Application.isEditor)
         {
-            UnityEditor.Handles.color = Color.white;
-            for (int x = 0; x < gridWidth; x += 5) // Show every 5th coordinate
+            Handles.color = Color.white;
+            for (int x = 0; x < gridWidth; x += 5)
             {
                 for (int y = 0; y < gridHeight; y += 5)
                 {
                     Vector3 worldPos = GetWorldPositionFromGrid(x, y);
-                    UnityEditor.Handles.Label(worldPos, $"({x},{y})");
+                    Handles.Label(worldPos, $"({x},{y})");
                 }
             }
         }
+#endif
     }
 }

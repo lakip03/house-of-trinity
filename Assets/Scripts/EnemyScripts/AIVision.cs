@@ -1,4 +1,3 @@
-
 using UnityEngine;
 
 [System.Serializable]
@@ -28,9 +27,20 @@ public class AIVision
         if (angleToTarget > angle / 2f) return false;
         
         RaycastHit2D hit = Physics2D.Raycast(fromPosition, directionToTarget, distance, obstacles);
-        return hit.collider == null;
+        
+        bool canSee = hit.collider == null;
+        
+        if (Application.isPlaying && canSee)
+        {
+            Debug.DrawRay(fromPosition, directionToTarget * distance, Color.green, 0.1f);
+        }
+        else if (Application.isPlaying)
+        {
+            Debug.DrawRay(fromPosition, directionToTarget * distance, Color.red, 0.1f);
+        }
+        
+        return canSee;
     }
     
     public void SetLastResult(bool result) => lastResult = result;
 }
-

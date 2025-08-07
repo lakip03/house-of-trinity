@@ -36,7 +36,6 @@ public class SelectableCard : MonoBehaviour
         if (cardButton == null)
             cardButton = GetComponent<Button>();
             
-        // Only add listener if button exists
         if (cardButton != null)
         {
             cardButton.onClick.AddListener(OnCardClicked);
@@ -52,7 +51,6 @@ public class SelectableCard : MonoBehaviour
         associatedRule = rule;
         selectionManager = manager;
         
-        // Set up UI elements
         if (ruleIcon != null && rule.ruleCard != null)
             ruleIcon.sprite = rule.ruleCard;
             
@@ -62,7 +60,6 @@ public class SelectableCard : MonoBehaviour
         if (ruleDescription != null)
             ruleDescription.text = rule.ruleDescription;
             
-        // Set card border color based on type
         SetCardTypeColor();
         UpdateVisualState();
     }

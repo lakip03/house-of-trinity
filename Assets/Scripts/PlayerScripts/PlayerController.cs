@@ -2,6 +2,7 @@ using UnityEngine;
 using System;
 using System.Collections;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
@@ -22,12 +23,10 @@ public class PlayerController : MonoBehaviour
     private Coroutine invincibilityCoroutine;
     private Coroutine blinkCoroutine;
 
-    // Events for better decoupling
     public static event Action<PlayerController, Collision2D> OnAnyPlayerCollision;
     public static event Action<PlayerController> OnInvincibilityStart;
     public static event Action<PlayerController> OnInvincibilityEnd;
 
-    // Properties for external access
     public bool IsInvincible => isInvincible;
     public float InvincibilityTimeRemaining { get; private set; }
 
@@ -180,11 +179,9 @@ public class PlayerController : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        // Always trigger the event, let subscribers decide what to do based on invincibility state
         OnAnyPlayerCollision?.Invoke(this, collision);
     }
 
-    // Debug methods (remove in production)
     [ContextMenu("Test Invincibility")]
     private void TestInvincibility()
     {
@@ -204,9 +201,7 @@ public class PlayerController : MonoBehaviour
     {
         if (other.CompareTag("Finish"))
         {
-            Debug.Log("YAY YOU WON:) COLLIDED WITH FINISH");
-            GameStateManager gameStateManager = FindAnyObjectByType<GameStateManager>();
-            gameStateManager.GameWon();
+            SceneManager.LoadScene("CardSelection");
         }
         if (other.CompareTag("enemy"))
         {

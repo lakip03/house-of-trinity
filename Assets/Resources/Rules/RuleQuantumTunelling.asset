@@ -12,16 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 293f356cab93ebeb78bd20cdb4fe0aea, type: 3}
   m_Name: RuleQuantumTunelling
   m_EditorClassIdentifier: 
-  ruleName: Quantum Shield
-  ruleDescription: 'You can pass through thin walls '
+  ruleName: Quantum Tunneling
+  ruleDescription: You can move through walls that are exactly one tile thick.
   ruleType: 0
   ruleCard: {fileID: 0}
   isActive: 1
   duration: -1
-  raycastLength: 1.4
+  raycastLength: 1.41
   raycastColor: {r: 0, g: 1, b: 1, a: 1}
-  raycastOffset: 0.93
+  raycastOffset: 1
   tunnelDistance: 1
   wallLayerMask:
     serializedVersion: 2
     m_Bits: 8
+  tunnelCooldown: 0.7
