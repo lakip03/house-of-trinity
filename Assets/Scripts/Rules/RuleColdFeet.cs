@@ -13,7 +13,6 @@ public class ColdFeet : Rule
     
     public override void ActivateRule(PlayerController player)
     {
-        // Initialize tracking when rule becomes active
         if (player != null)
         {
             lastPlayerPosition = player.transform.position;
@@ -25,7 +24,6 @@ public class ColdFeet : Rule
     
     public override void DeactivateRule(PlayerController player)
     {
-        // Reset tracking when rule is deactivated
         timeSinceLastMovement = 0f;
         hasInitializedPosition = false;
         Debug.Log("Cold Feet restriction deactivated.");
@@ -38,19 +36,15 @@ public class ColdFeet : Rule
         Vector2 currentPosition = player.transform.position;
         float distanceMoved = Vector2.Distance(currentPosition, lastPlayerPosition);
         
-        // Check if player has moved significantly
         if (distanceMoved > movementThreshold)
         {
-            // Player moved - reset timer
             timeSinceLastMovement = 0f;
             lastPlayerPosition = currentPosition;
         }
         else
         {
-            // Player hasn't moved enough - increment idle time
             timeSinceLastMovement += deltaTime;
             
-            // Check if player has been idle too long
             if (timeSinceLastMovement >= maxIdleTime)
             {
                 Debug.Log("GAME OVER - Cold Feet! You stopped moving for too long!");
@@ -61,7 +55,6 @@ public class ColdFeet : Rule
     
     private void TriggerGameOver(PlayerController player)
     {
-        // Use GameStateManager to handle game over
         if (GameStateManager.Instance != null)
         {
             GameStateManager.Instance.GameOver("Cold Feet - You stopped moving for too long!");
@@ -71,7 +64,6 @@ public class ColdFeet : Rule
             Debug.LogError("GameStateManager not found! Make sure it's in the scene.");
         }
         
-        // Deactivate this rule since game is over
         OnRuleRemoved();
     }
 }
