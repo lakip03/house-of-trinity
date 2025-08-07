@@ -17,7 +17,7 @@ public class GameStateManager : MonoBehaviour
     // Singleton pattern for easy access
     public static GameStateManager Instance { get; private set; }
     
-    // Events
+    // Static events that can be accessed from anywhere
     public static event Action<string> OnGameOver;
     public static event Action<string> OnGameWon;
     
@@ -26,7 +26,8 @@ public class GameStateManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
+            // Don't destroy on load for level-specific GameStateManager
+            // DontDestroyOnLoad(gameObject);
         }
         else
         {
@@ -38,7 +39,22 @@ public class GameStateManager : MonoBehaviour
     {
         if (gameOverCanvasGroup == null)
         {
-            gameOverCanvasGroup = FindAnyObjectByType<CanvasGroup>();
+            // Try to find game over screen in scene
+            GameObject gameOverScreen = GameObject.Find("GameOverScr");
+            if (gameOverScreen != null)
+            {
+                gameOverCanvasGroup = gameOverScreen.GetComponent<CanvasGroup>();
+            }
+        }
+        
+        if (gameWinCanvasGroup == null)
+        {
+            // Try to find win screen in scene
+            GameObject winScreen = GameObject.Find("WinScreen");
+            if (winScreen != null)
+            {
+                gameWinCanvasGroup = winScreen.GetComponent<CanvasGroup>();
+            }
         }
         
         if (player == null)
@@ -49,6 +65,10 @@ public class GameStateManager : MonoBehaviour
         if (gameOverCanvasGroup != null)
         {
             HideGameOverScreen();
+        }
+        
+        if (gameWinCanvasGroup != null)
+        {
             HideGameWonScreen();
         }
     }
@@ -78,6 +98,8 @@ public class GameStateManager : MonoBehaviour
         {
             Time.timeScale = 0f;
         }
+        
+        // Trigger static event
         OnGameWon?.Invoke("Won");
     }
 
@@ -91,7 +113,7 @@ public class GameStateManager : MonoBehaviour
         }
         else
         {
-            Debug.LogError("GameWin CanvasGroup not found! Make sure GameWin prefab has a GameWin component.");
+            Debug.LogError("GameWin CanvasGroup not found! Make sure WinScreen prefab has a CanvasGroup component.");
         }
     }
 
@@ -111,6 +133,7 @@ public class GameStateManager : MonoBehaviour
             Time.timeScale = 0f;
         }
         
+        // Trigger static event
         OnGameOver?.Invoke(reason);
     }
     
@@ -140,17 +163,110 @@ public class GameStateManager : MonoBehaviour
     
     public void RestartGame()
     {
-        //TBA
+        Debug.Log("Restarting current level");
+        
+        // Reset time scale
+        Time.timeScale = 1f;
+        
+        if (GameFlowController.Instance != null)
+        {
+            GameFlowController.Instance.RestartCurrentLevel();
+        }
+        else
+        {
+            Debug.LogError("GameFlowController not found! Cannot restart level.");
+            // Fallback - reload current scene
+            UnityEngine.SceneManagement.SceneManager.LoadScene(
+                UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+        }
+    }
+    
+    public void RetryWithNewRules()
+    {
+        Debug.Log("Going back to card selection");
+        
+        // Reset time scale
+        Time.timeScale = 1f;
+        
+        if (GameFlowController.Instance != null)
+        {
+            GameFlowController.Instance.LoadCardSelector();
+        }
+        else
+        {
+            Debug.LogError("GameFlowController not found! Cannot return to card selector.");
+            // Fallback - try to load card selector scene
+            UnityEngine.SceneManagement.SceneManager.LoadScene("CardSelector");
+        }
+    }
+    
+    public void ReturnToMainMenu()
+    {
+        Debug.Log("Returning to main menu");
+        
+        // Reset time scale
+        Time.timeScale = 1f;
+        
+        if (GameFlowController.Instance != null)
+        {
+            GameFlowController.Instance.ReturnToMainMenu();
+        }
+        else
+        {
+            Debug.LogError("GameFlowController not found! Loading main menu directly.");
+            UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
+        }
+    }
+    
+    public void NextLevel()
+    {
+        Debug.Log("Proceeding to next level");
+        
+        // Reset time scale
+        Time.timeScale = 1f;
+        
+        if (GameFlowController.Instance != null)
+        {
+            // The GameFlowController will handle level progression automatically
+            // when GameWon is called, so this method might not be needed
+            GameFlowController.Instance.LoadCardSelector();
+        }
+        else
+        {
+            Debug.LogError("GameFlowController not found! Cannot proceed to next level.");
+        }
     }
     
     public void QuitGame()
     {
         Debug.Log("Quitting Game");
         
-        #if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying = false;
-        #else
-            Application.Quit();
-        #endif
+        // Reset time scale before quitting
+        Time.timeScale = 1f;
+        
+        if (GameFlowController.Instance != null)
+        {
+            GameFlowController.Instance.QuitGame();
+        }
+        else
+        {
+            #if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;
+            #else
+                Application.Quit();
+            #endif
+        }
+    }
+    
+    void OnDestroy()
+    {
+        // Reset time scale when destroyed to prevent issues
+        Time.timeScale = 1f;
+        
+        // Clear singleton reference if this was the instance
+        if (Instance == this)
+        {
+            Instance = null;
+        }
     }
 }

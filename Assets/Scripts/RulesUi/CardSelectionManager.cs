@@ -1,4 +1,4 @@
-// Fixed CardSelectionManager.cs - Handles null RuleManager gracefully
+// Updated CardSelectionManager.cs with GameFlowController integration
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
@@ -15,9 +15,10 @@ public class CardSelectionManager : MonoBehaviour
     public Button backButton;
     public TextMeshProUGUI instructionText;
     public TextMeshProUGUI selectionCountText;
+    public TextMeshProUGUI levelInfoText; // New: Shows current level info
     
     [Header("Fallback Rules (if RuleManager missing)")]
-    public List<Rule> fallbackRules = new List<Rule>();
+    public List<Rule> fallbackRules = new List<Rule>(); // Assign rules manually as backup
     
     [Header("Selected Rules Display")]
     public Transform selectedRulesContainer;
@@ -26,10 +27,6 @@ public class CardSelectionManager : MonoBehaviour
     [Header("Selection Settings")]
     public int totalPositiveRulesNeeded = 2;
     public int totalRestrictionRulesNeeded = 1;
-    
-    [Header("Scene Settings")]
-    public string gameSceneName = "GameLevel";
-    public string menuSceneName = "MainMenu";
     
     [Header("Audio")]
     public AudioClip cardSelectSound;
@@ -49,11 +46,42 @@ public class CardSelectionManager : MonoBehaviour
     {
         audioSource = GetComponent<AudioSource>();
         
+        // Ensure RuleManager exists
         EnsureRuleManagerExists();
         
         SetupUI();
         GenerateCards();
         UpdateUI();
+        UpdateLevelInfo();
+    }
+    
+    void UpdateLevelInfo()
+    {
+        if (levelInfoText != null && GameFlowController.Instance != null)
+        {
+            int currentLevel = GameFlowController.Instance.CurrentLevel;
+            int totalLevels = GameFlowController.Instance.TotalLevels;
+            
+            levelInfoText.text = $"Level {currentLevel} of {totalLevels}";
+            
+            // Add some flavor text based on level
+            string flavorText = GetLevelFlavorText(currentLevel);
+            if (!string.IsNullOrEmpty(flavorText))
+            {
+                levelInfoText.text += $"\n{flavorText}";
+            }
+        }
+    }
+    
+    string GetLevelFlavorText(int level)
+    {
+        return level switch
+        {
+            1 => "Welcome to your first challenge!",
+            2 => "The difficulty increases...",
+            3 => "The final test awaits!",
+            _ => "Good luck!"
+        };
     }
     
     void EnsureRuleManagerExists()
@@ -62,13 +90,16 @@ public class CardSelectionManager : MonoBehaviour
         {
             Debug.LogWarning("RuleManager.Instance is null! Trying to find or create one...");
             
+            // Try to find existing RuleManager
             RuleManager existingManager = FindFirstObjectByType<RuleManager>();
             
             if (existingManager == null)
             {
+                // Create new RuleManager
                 GameObject managerObj = new GameObject("RuleManager");
                 RuleManager newManager = managerObj.AddComponent<RuleManager>();
                 
+                // Add fallback rules if available
                 if (fallbackRules.Count > 0)
                 {
                     newManager.availableRules.AddRange(fallbackRules);
@@ -98,12 +129,14 @@ public class CardSelectionManager : MonoBehaviour
     
     void GenerateCards()
     {
+        // Clear existing cards
         foreach (Transform child in cardContainer)
         {
             Destroy(child.gameObject);
         }
         allCards.Clear();
         
+        // Get available rules
         List<Rule> availableRules = GetAvailableRules();
         
         if (availableRules.Count == 0)
@@ -112,6 +145,7 @@ public class CardSelectionManager : MonoBehaviour
             return;
         }
         
+        // Create cards for all rules
         foreach (Rule rule in availableRules)
         {
             if (rule == null)
@@ -144,6 +178,7 @@ public class CardSelectionManager : MonoBehaviour
             return RuleManager.Instance.availableRules.Where(r => r != null).ToList();
         }
         
+        // Use fallback rules if RuleManager is not available
         Debug.LogWarning("Using fallback rules as RuleManager is not available or has no rules");
         return fallbackRules.Where(r => r != null).ToList();
     }
@@ -329,7 +364,7 @@ public class CardSelectionManager : MonoBehaviour
                     break;
                 case SelectionPhase.SelectingRestriction:
                     canProceed = selectedRestrictionRules.Count == totalRestrictionRulesNeeded;
-                    buttonText = "Start Game";
+                    buttonText = "Start Level";
                     break;
             }
             
@@ -388,11 +423,23 @@ public class CardSelectionManager : MonoBehaviour
     {
         PlayNextSound();
         ApplySelectedRules();
-        StartCoroutine(LoadGameSceneWithDelay(0.5f));
+        
+        // Use GameFlowController to start the current level
+        if (GameFlowController.Instance != null)
+        {
+            GameFlowController.Instance.StartCurrentLevel();
+        }
+        else
+        {
+            Debug.LogError("GameFlowController not found! Falling back to direct scene loading");
+            // Fallback - load the first level scene directly
+            SceneManager.LoadScene("Level1");
+        }
     }
     
     void ApplySelectedRules()
     {
+        // Ensure RuleManager exists before applying rules
         EnsureRuleManagerExists();
         
         if (RuleManager.Instance == null)
@@ -422,15 +469,17 @@ public class CardSelectionManager : MonoBehaviour
         }
     }
     
-    System.Collections.IEnumerator LoadGameSceneWithDelay(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        SceneManager.LoadScene(gameSceneName);
-    }
-    
     void GoBack()
     {
-        SceneManager.LoadScene(menuSceneName);
+        if (GameFlowController.Instance != null)
+        {
+            GameFlowController.Instance.ReturnToMainMenu();
+        }
+        else
+        {
+            // Fallback
+            SceneManager.LoadScene("MainMenu");
+        }
     }
     
     // Audio methods

@@ -19,6 +19,14 @@ public class TimeBend : Rule
 
     public override void ActivateRule(PlayerController player)
     {
+
+        if (player == null)
+        {
+            Debug.LogWarning($"[{ruleName}] ActivateRule called with null player - rule will be activated when player is available");
+            return;
+        }
+        
+
         timeRemaining = timeLimit;
         isTimerActive = true;
         
@@ -29,6 +37,11 @@ public class TimeBend : Rule
     
     public override void DeactivateRule(PlayerController player)
     {
+         if (player == null)
+        {
+            Debug.LogWarning($"[{ruleName}] DeactivateRule called with null player - skipping deactivation");
+            return;
+        }
         isTimerActive = false;
         timeRemaining = 0f;
         
@@ -39,6 +52,7 @@ public class TimeBend : Rule
     
     public override void UpdateRule(PlayerController player, float deltaTime)
     {
+          if (player == null) return;
         if (!isTimerActive) return;
         
         timeRemaining -= deltaTime;

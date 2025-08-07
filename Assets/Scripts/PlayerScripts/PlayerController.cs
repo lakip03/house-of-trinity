@@ -2,7 +2,6 @@ using UnityEngine;
 using System;
 using System.Collections;
 using UnityEngine.InputSystem;
-using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
@@ -16,29 +15,94 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Color invincibleColor = Color.yellow;
     [SerializeField] private Color normalColor = Color.white;
 
+    [Header("Audio")]
+    public AudioClip deathSound;
+    public AudioClip victorySound;
+    public AudioClip invincibilitySound;
+
+    [Header("Visual Effects")]
+    public ParticleSystem deathParticles;
+    public ParticleSystem victoryParticles;
+    public ParticleSystem invincibilityParticles;
+
+    // Components
     private Rigidbody2D rb;
     private PlayerInput playerInput;
     private InputAction moveAction;
-    private SpriteRenderer plyr;
+    private SpriteRenderer spriteRenderer;
+    private AudioSource audioSource;
+    
+    // Invincibility system
     private Coroutine invincibilityCoroutine;
     private Coroutine blinkCoroutine;
 
+    // Events for better decoupling
     public static event Action<PlayerController, Collision2D> OnAnyPlayerCollision;
     public static event Action<PlayerController> OnInvincibilityStart;
     public static event Action<PlayerController> OnInvincibilityEnd;
+    public static event Action<PlayerController> OnPlayerDeath;
+    public static event Action<PlayerController> OnPlayerVictory;
 
+    // Properties for external access
     public bool IsInvincible => isInvincible;
     public float InvincibilityTimeRemaining { get; private set; }
+    public bool IsAlive { get; private set; } = true;
+    public Vector2 MovementInput { get; private set; }
 
     void Start()
     {
-        rb = GetComponent<Rigidbody2D>();
-        playerInput = GetComponent<PlayerInput>();
-        plyr = GetComponent<SpriteRenderer>();
-
+        InitializeComponents();
+        RegisterWithSystems();
         SetPlayerColor(normalColor);
-        moveAction = playerInput.actions["Move"];
+    }
 
+    void InitializeComponents()
+    {
+        // Get required components
+        rb = GetComponent<Rigidbody2D>();
+        if (rb == null)
+        {
+            Debug.LogError("PlayerController requires a Rigidbody2D component!");
+            enabled = false;
+            return;
+        }
+
+        playerInput = GetComponent<PlayerInput>();
+        if (playerInput == null)
+        {
+            Debug.LogError("PlayerController requires a PlayerInput component!");
+            enabled = false;
+            return;
+        }
+
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer == null)
+        {
+            Debug.LogError("PlayerController requires a SpriteRenderer component!");
+            enabled = false;
+            return;
+        }
+
+        // Get or create audio source
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
+
+        // Setup input action
+        moveAction = playerInput.actions["Move"];
+        if (moveAction == null)
+        {
+            Debug.LogError("Move action not found in PlayerInput! Check input action asset.");
+            enabled = false;
+            return;
+        }
+    }
+
+    void RegisterWithSystems()
+    {
+        // Register with RuleManager
         if (RuleManager.Instance != null)
         {
             RuleManager.Instance.RegisterPlayerController(this);
@@ -46,20 +110,51 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            Debug.LogError("RuleManager.Instance is null when PlayerController started!");
+            Debug.LogWarning("RuleManager.Instance is null when PlayerController started!");
+            // Try to find and register later
+            StartCoroutine(TryRegisterWithRuleManagerLater());
+        }
+
+        if (GameFlowController.Instance != null)
+        {
+            GameFlowController.Instance.OnGameStateChanged += OnGameStateChanged;
+        }
+    }
+
+    IEnumerator TryRegisterWithRuleManagerLater()
+    {
+        float timeout = 5f;
+        float elapsed = 0f;
+
+        while (RuleManager.Instance == null && elapsed < timeout)
+        {
+            yield return new WaitForSeconds(0.1f);
+            elapsed += 0.1f;
+        }
+
+        if (RuleManager.Instance != null)
+        {
+            RuleManager.Instance.RegisterPlayerController(this);
+            Debug.Log("PlayerController registered with RuleManager (delayed)");
+        }
+        else
+        {
+            Debug.LogError("Failed to find RuleManager after timeout!");
         }
     }
 
     void Update()
     {
+        if (!IsAlive) return;
+
         HandleMovement();
         UpdateInvincibilityTimer();
     }
 
     private void HandleMovement()
     {
-        Vector2 movementInput = moveAction.ReadValue<Vector2>();
-        rb.linearVelocity = movementInput * moveSpeed;
+        MovementInput = moveAction.ReadValue<Vector2>();
+        rb.linearVelocity = MovementInput * moveSpeed;
     }
 
     private void UpdateInvincibilityTimer()
@@ -70,12 +165,40 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    #region Public Methods
+
     public Vector2 GetPlayerDirection()
     {
-        return moveAction.ReadValue<Vector2>();
+        return MovementInput;
     }
 
-    // Public methods for controlling invincibility
+    public void SetMoveSpeed(float newSpeed)
+    {
+        moveSpeed = newSpeed;
+    }
+
+    public void ResetMoveSpeed(float originalSpeed)
+    {
+        moveSpeed = originalSpeed;
+    }
+
+    public void DisablePlayer()
+    {
+        IsAlive = false;
+        enabled = false;
+        rb.linearVelocity = Vector2.zero;
+    }
+
+    public void EnablePlayer()
+    {
+        IsAlive = true;
+        enabled = true;
+    }
+
+    #endregion
+
+    #region Invincibility System
+
     public void SetInvincible(float duration)
     {
         if (invincibilityCoroutine != null)
@@ -125,7 +248,10 @@ public class PlayerController : MonoBehaviour
 
         isInvincible = true;
         StartBlinking();
+        PlayInvincibilityEffects();
         OnInvincibilityStart?.Invoke(this);
+        
+        Debug.Log("Player invincibility enabled");
     }
 
     private void DisableInvincibility()
@@ -135,8 +261,11 @@ public class PlayerController : MonoBehaviour
         isInvincible = false;
         InvincibilityTimeRemaining = 0f;
         StopBlinking();
+        StopInvincibilityEffects();
         SetPlayerColor(normalColor);
         OnInvincibilityEnd?.Invoke(this);
+        
+        Debug.Log("Player invincibility disabled");
     }
 
     private void StartBlinking()
@@ -171,16 +300,160 @@ public class PlayerController : MonoBehaviour
 
     private void SetPlayerColor(Color color)
     {
-        if (plyr != null)
+        if (spriteRenderer != null)
         {
-            plyr.color = color;
+            spriteRenderer.color = color;
         }
     }
+
+    #endregion
+
+    #region Audio and Visual Effects
+
+    private void PlayInvincibilityEffects()
+    {
+        PlaySound(invincibilitySound);
+        PlayParticles(invincibilityParticles);
+    }
+
+    private void StopInvincibilityEffects()
+    {
+        StopParticles(invincibilityParticles);
+    }
+
+    private void PlayDeathEffects()
+    {
+        PlaySound(deathSound);
+        PlayParticles(deathParticles);
+        SetPlayerColor(Color.red); // Death color
+    }
+
+    private void PlayVictoryEffects()
+    {
+        PlaySound(victorySound);
+        PlayParticles(victoryParticles);
+        SetPlayerColor(Color.green); // Victory color
+    }
+
+    private void PlaySound(AudioClip clip)
+    {
+        if (audioSource != null && clip != null)
+        {
+            audioSource.PlayOneShot(clip);
+        }
+    }
+
+    private void PlayParticles(ParticleSystem particles)
+    {
+        if (particles != null)
+        {
+            particles.Play();
+        }
+    }
+
+    private void StopParticles(ParticleSystem particles)
+    {
+        if (particles != null)
+        {
+            particles.Stop();
+        }
+    }
+
+    #endregion
+
+    #region Collision Handling
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
         OnAnyPlayerCollision?.Invoke(this, collision);
     }
+
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (!IsAlive) return;
+
+        if (other.CompareTag("Finish"))
+        {
+            HandleVictory();
+        }
+        else if (other.CompareTag("enemy"))
+        {
+            HandleEnemyCollision();
+        }
+    }
+
+    private void HandleVictory()
+    {
+        Debug.Log("Player reached finish line!");
+        
+        DisablePlayer();
+        PlayVictoryEffects();
+        OnPlayerVictory?.Invoke(this);
+
+        if (GameStateManager.Instance != null)
+        {
+            GameStateManager.Instance.GameWon();
+        }
+        else
+        {
+            Debug.LogError("GameStateManager not found! Cannot trigger game win.");
+        }
+    }
+
+    private void HandleEnemyCollision()
+    {
+        if (isInvincible)
+        {
+            Debug.Log("Player hit enemy but is invincible!");
+            return;
+        }
+
+        Debug.Log("Player killed by enemy!");
+        HandleDeath("Caught by enemy");
+    }
+
+    private void HandleDeath(string reason)
+    {
+        if (!IsAlive) return;
+
+        Debug.Log($"Player died: {reason}");
+        
+        DisablePlayer();
+        PlayDeathEffects();
+        OnPlayerDeath?.Invoke(this);
+
+        if (GameStateManager.Instance != null)
+        {
+            GameStateManager.Instance.GameOver(reason);
+        }
+        else
+        {
+            Debug.LogError("GameStateManager not found! Cannot trigger game over.");
+        }
+    }
+
+    #endregion
+
+    #region Event Handlers
+
+    private void OnGameStateChanged(GameState newState)
+    {
+        switch (newState)
+        {
+            case GameState.InLevel:
+                EnablePlayer();
+                break;
+            case GameState.GameComplete:
+            case GameState.MainMenu:
+            case GameState.CardSelection:
+                DisablePlayer();
+                break;
+        }
+    }
+
+    #endregion
+
+    #region Debug Methods
 
     [ContextMenu("Test Invincibility")]
     private void TestInvincibility()
@@ -197,21 +470,48 @@ public class PlayerController : MonoBehaviour
             SetInvincibleIndefinitely();
     }
 
-    void OnTriggerEnter2D(Collider2D other)
+    [ContextMenu("Test Death")]
+    private void TestDeath()
     {
-        if (other.CompareTag("Finish"))
-        {
-            SceneManager.LoadScene("CardSelection");
-        }
-        if (other.CompareTag("enemy"))
-        {
-            Debug.Log("OH NO YOU DIED");
-            GameStateManager gameStateManager = FindAnyObjectByType<GameStateManager>();
-            if (isInvincible)
-            {
-                return;
-            }
-            gameStateManager.GameOver("Death by enemy");
-        }
+        HandleDeath("Debug test");
     }
+
+    [ContextMenu("Test Victory")]
+    private void TestVictory()
+    {
+        HandleVictory();
+    }
+
+    #endregion
+
+    #region Cleanup
+
+    void OnDestroy()
+    {
+        if (invincibilityCoroutine != null)
+        {
+            StopCoroutine(invincibilityCoroutine);
+        }
+        if (blinkCoroutine != null)
+        {
+            StopCoroutine(blinkCoroutine);
+        }
+
+        if (GameFlowController.Instance != null)
+        {
+            GameFlowController.Instance.OnGameStateChanged -= OnGameStateChanged;
+        }
+
+        StopParticles(deathParticles);
+        StopParticles(victoryParticles);
+        StopParticles(invincibilityParticles);
+    }
+
+    void OnDisable()
+    {
+        RemoveInvincibility();
+        rb.linearVelocity = Vector2.zero;
+    }
+
+    #endregion
 }

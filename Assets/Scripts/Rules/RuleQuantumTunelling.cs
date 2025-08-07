@@ -14,6 +14,11 @@ public class RuleQuantumTunnelling : Rule
 
     public override void ActivateRule(PlayerController player)
     {
+        if (player == null)
+        {
+            Debug.LogWarning($"[{ruleName}] ActivateRule called with null player - rule will be activated when player is available");
+            return;
+        }
         lastTunnelTime = -tunnelCooldown; // Allow immediate first tunnel
     }
 
@@ -23,6 +28,7 @@ public class RuleQuantumTunnelling : Rule
 
     public override void UpdateRule(PlayerController player, float deltaTime)
     {
+        if (player == null) return;
         Vector2 movementDirection = player.GetPlayerDirection();
         if (movementDirection == Vector2.zero) return;
 
