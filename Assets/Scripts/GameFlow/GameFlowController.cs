@@ -43,6 +43,7 @@ public class GameFlowController : MonoBehaviour
     public float TotalPlayTime => gameFlowData.totalPlayTime;
     
     private AudioSource audioSource;
+    private List<Rule> currentLevelRules = new List<Rule>(); // Store rules between levels
     
     void Awake()
     {
@@ -94,12 +95,11 @@ public class GameFlowController : MonoBehaviour
         Debug.Log("GameFlowController initialized");
     }
     
-
-    
     public void StartNewGame()
     {
         Debug.Log("Starting new game");
         gameFlowData.Initialize();
+        currentLevelRules.Clear(); // Clear any stored rules
         ChangeState(GameState.CardSelection);
         LoadCardSelector();
     }
@@ -133,6 +133,9 @@ public class GameFlowController : MonoBehaviour
             return;
         }
         
+        // Store current rules before loading the level
+        StoreCurrentRules();
+        
         string levelScene = levelScenes[gameFlowData.currentLevel - 1];
         Debug.Log($"Starting level {gameFlowData.currentLevel}: {levelScene}");
         
@@ -154,7 +157,6 @@ public class GameFlowController : MonoBehaviour
         SceneManager.LoadScene(endScreenScene);
     }
     
-
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         Debug.Log($"Scene loaded: {scene.name}");
@@ -173,6 +175,8 @@ public class GameFlowController : MonoBehaviour
         {
             ChangeState(GameState.InLevel);
             SetupLevel();
+            // Reapply rules after level loads
+            StartCoroutine(ReapplyRulesAfterSceneLoad());
         }
         else if (scene.name == endScreenScene)
         {
@@ -200,10 +204,11 @@ public class GameFlowController : MonoBehaviour
         PlaySound(levelCompleteSound);
         gameFlowData.levelsCompleted++;
         
-        // Check if this was the final level
+        // FIX: Check if this is the final level BEFORE incrementing
         if (gameFlowData.currentLevel >= levelScenes.Count)
         {
             // Game completed!
+            Debug.Log("Final level completed! Loading end screen...");
             OnGameCompleted?.Invoke();
             StartCoroutine(LoadEndScreenAfterDelay());
         }
@@ -211,11 +216,11 @@ public class GameFlowController : MonoBehaviour
         {
             // Move to next level
             gameFlowData.currentLevel++;
+            Debug.Log($"Moving to level {gameFlowData.currentLevel}");
             OnLevelChanged?.Invoke(gameFlowData.currentLevel);
             StartCoroutine(LoadCardSelectorAfterLevelComplete());
         }
     }
-
     
     void SetupCardSelector()
     {
@@ -248,8 +253,6 @@ public class GameFlowController : MonoBehaviour
         {
             Debug.LogWarning("GameStateManager not found in level scene");
         }
-        
-        // Events are handled through GameEventsManager, so no need to subscribe here
     }
     
     void SetupEndScreen()
@@ -268,7 +271,57 @@ public class GameFlowController : MonoBehaviour
         Debug.Log($"Setting up card selector for level {gameFlowData.currentLevel}");
     }
     
-
+    // Store current rules before changing levels
+    void StoreCurrentRules()
+    {
+        if (RuleManager.Instance != null)
+        {
+            currentLevelRules.Clear();
+            currentLevelRules.AddRange(RuleManager.Instance.activeRules);
+            Debug.Log($"Stored {currentLevelRules.Count} rules for next level");
+        }
+    }
+    
+    // Reapply rules after scene load
+    IEnumerator ReapplyRulesAfterSceneLoad()
+    {
+        // Wait a frame to ensure PlayerController is initialized
+        yield return null;
+        
+        // Force RuleManager to find the new PlayerController
+        if (RuleManager.Instance != null)
+        {
+            RuleManager.Instance.ForcePlayerSearch();
+            
+            // Wait for player to be registered
+            float timeout = 2f;
+            float elapsed = 0f;
+            while (!RuleManager.Instance.IsPlayerReady && elapsed < timeout)
+            {
+                yield return new WaitForSeconds(0.1f);
+                elapsed += 0.1f;
+            }
+            
+            // If we have stored rules, reapply them
+            if (currentLevelRules.Count > 0)
+            {
+                Debug.Log($"Reapplying {currentLevelRules.Count} rules to new level");
+                
+                // Clear any existing rules first
+                RuleManager.Instance.ClearAllRules();
+                
+                // Reapply stored rules
+                foreach (Rule rule in currentLevelRules)
+                {
+                    if (rule != null)
+                    {
+                        RuleManager.Instance.AddRule(rule);
+                        Debug.Log($"Reapplied rule: {rule.ruleName}");
+                    }
+                }
+            }
+        }
+    }
     
     IEnumerator ReturnToCardSelectorAfterDeath()
     {
@@ -287,7 +340,6 @@ public class GameFlowController : MonoBehaviour
         yield return new WaitForSeconds(3f); // Wait for final victory celebration
         LoadEndScreen();
     }
-    
     
     void ChangeState(GameState newState)
     {
@@ -333,11 +385,10 @@ public class GameFlowController : MonoBehaviour
     public void DebugResetGame()
     {
         gameFlowData.Initialize();
+        currentLevelRules.Clear();
         Debug.Log("Debug: Game data reset");
     }
-
-
-
+    
     void OnDestroy()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;

@@ -4,10 +4,18 @@ using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
+/// <summary>
+/// Implements A* pathfinding for a 2D grid-based environment.
+/// Requires a PathFindingGrid component in the scene to operate.
+/// </summary>
 public class AStarPathfinding2D : MonoBehaviour
 {
+     /// <summary>
+    /// Attempts to find and cache the grid used for pathfinding on scene start.
+    /// </summary>
     private PathFindingGrid grid;
 
+    
     void Start()
     {
         grid = FindAnyObjectByType<PathFindingGrid>();
@@ -16,6 +24,15 @@ public class AStarPathfinding2D : MonoBehaviour
             Debug.LogError("Pathfinding grid nto found... Please add it to the scene");
         }
     }
+
+    /// <summary>
+    /// Finds the shortest walkable path between two world positions using the A* algorithm.
+    /// </summary>
+    /// <param name="startPos">Starting position in world space.</param>
+    /// <param name="targetPos">Target position in world space.</param>
+    /// <returns>
+    /// A list of world space positions representing the path, or an empty list if no path was found.
+    /// </returns>
     public List<Vector3> FindPath(Vector3 startPos, Vector3 targetPos)
     {
         if (grid == null) return new List<Vector3>();
@@ -67,9 +84,15 @@ public class AStarPathfinding2D : MonoBehaviour
                 }
             }
         }
-        return new List<Vector3>();
+        return new List<Vector3>(); // No path was found
     }
 
+    /// <summary>
+    /// Retraces the final path from end node to start node and converts it into world space positions.
+    /// </summary>
+    /// <param name="startNode">The start node of the path.</param>
+    /// <param name="endNode">The final node reached (target).</param>
+    /// <returns>A list of world positions representing the final path.</returns>
     private List<Vector3> RetracePath(Node startNode, Node endNode)
     {
         List<Node> path = new List<Node>();
@@ -92,6 +115,12 @@ public class AStarPathfinding2D : MonoBehaviour
         return worldPath;
     }
 
+    /// <summary>
+    /// Finds the node in the list with the lowest F-cost.
+    /// Breaks ties using the H-cost as a secondary metric.
+    /// </summary>
+    /// <param name="nodeList">The list of nodes to search.</param>
+    /// <returns>The node with the lowest F-cost.</returns>
     Node GetLowestFCostNode(List<Node> nodeList)
     {
         Node lowestFCostNode = nodeList[0];
@@ -105,6 +134,11 @@ public class AStarPathfinding2D : MonoBehaviour
         }
         return lowestFCostNode;
     }
+
+    /// <summary>
+    /// Resets all nodes in the grid before pathfinding.
+    /// Clears gCost, hCost, and parent references.
+    /// </summary>
     void ResetNodes()
     {
         for (int x = 0; x < grid.gridWidth; x++)
@@ -121,6 +155,13 @@ public class AStarPathfinding2D : MonoBehaviour
             }
         }
     }
+
+    /// <summary>
+    /// Calculates the heuristic distance between two nodes using Manhattan + diagonal movement cost approximation.
+    /// </summary>
+    /// <param name="nodeA">The starting node.</param>
+    /// <param name="nodeB">The target node.</param>
+    /// <returns>The estimated movement cost between the two nodes.</returns>
     int GetDistance(Node nodeA, Node nodeB)
     {
         int distX = Mathf.Abs(nodeA.position.x - nodeB.position.x);
