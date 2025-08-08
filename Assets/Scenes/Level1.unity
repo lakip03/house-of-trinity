@@ -396,17 +396,17 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.015479505, y: -0.0070235133}
+  m_Offset: {x: 0.012683533, y: -0.015592575}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.19, y: 0.32}
+    oldSize: {x: 0.19, y: 0.34}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.14242277, y: 0.29677415}
+  m_Size: {x: 0.13926494, y: 0.27763003}
   m_EdgeRadius: 0
 --- !u!114 &56665510
 MonoBehaviour:
@@ -7531,7 +7531,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &366946861
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7884,7 +7884,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6667560938835537219, guid: b4d610baa47599353946e8a62b584182, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -13490,7 +13490,7 @@ TilemapCollider2D:
   m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: 16bf17fdcb19413b59c5e42e98f82422, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0

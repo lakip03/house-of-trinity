@@ -6,47 +6,116 @@ using UnityEngine;
 using UnityEditor;
 #endif
 
+/// <summary>
+/// Manages a 2D grid of nodes for pathfinding algorithms. Creates and maintains a grid
+/// where each cell can be walkable or blocked, and provides coordinate conversion between
+/// world space and grid space. Includes visualization tools for debugging pathfinding.
+/// </summary>
 public class PathFindingGrid : MonoBehaviour
 {
     [Header("Grid Settings")]
+    /// <summary>
+    /// The width of the grid in number of nodes.
+    /// </summary>
     public int gridWidth = 20;
+    
+    /// <summary>
+    /// The height of the grid in number of nodes.
+    /// </summary>
     public int gridHeight = 20;
+    
+    /// <summary>
+    /// The size of each grid node in world units.
+    /// </summary>
     public float nodeSize = 1f;
+    
+    /// <summary>
+    /// Layer mask used to detect obstacles when determining node walkability.
+    /// </summary>
     public LayerMask obstacleLayer;
 
     [Header("Grid Offset")]
+    /// <summary>
+    /// Offset from the GameObject's position to place the grid origin.
+    /// </summary>
     [Tooltip("Offset from the GameObject's position")]
     public Vector2 gridOffset = Vector2.zero;
 
     [Header("Visualization")]
+    /// <summary>
+    /// Whether to show the grid visualization in the Scene view.
+    /// </summary>
     public bool showGrid = true;
+    
+    /// <summary>
+    /// Whether to show the grid visualization during play mode.
+    /// </summary>
     public bool showGridInPlayMode = false;
+    
+    /// <summary>
+    /// Color used to display walkable nodes in the grid visualization.
+    /// </summary>
     public Color walkableColor = Color.white;
+    
+    /// <summary>
+    /// Color used to display obstacle nodes in the grid visualization.
+    /// </summary>
     public Color obstacleColor = Color.red;
+    
+    /// <summary>
+    /// Color used to display the current pathfinding path.
+    /// </summary>
     public Color pathColor = Color.green;
+    
+    /// <summary>
+    /// Color used to display the grid origin point.
+    /// </summary>
     public Color gridOriginColor = Color.yellow;
 
     [Header("Debug Info")]
+    /// <summary>
+    /// The calculated world position of the grid's origin point.
+    /// </summary>
     [SerializeField] private Vector3 gridWorldOrigin;
 
+    /// <summary>
+    /// The 2D array of nodes representing the pathfinding grid.
+    /// </summary>
     private Node[,] grid;
+    
+    /// <summary>
+    /// The current pathfinding path being visualized.
+    /// </summary>
     private List<Vector3> currentPath = new List<Vector3>();
 
+    /// <summary>
+    /// Initializes the grid when the component starts.
+    /// </summary>
     void Start()
     {
         CreateGrid();
     }
 
+    /// <summary>
+    /// Updates the grid origin when inspector values change.
+    /// </summary>
     void OnValidate()
     {
         UpdateGridOrigin();
     }
 
+    /// <summary>
+    /// Calculates and updates the world position of the grid origin based on transform position and offset.
+    /// </summary>
     private void UpdateGridOrigin()
     {
         gridWorldOrigin = transform.position + new Vector3(gridOffset.x, gridOffset.y, 0);
     }
 
+    /// <summary>
+    /// Creates the pathfinding grid by initializing all nodes and checking for obstacles.
+    /// Each node's walkability is determined by checking for Physics2D overlaps with the obstacle layer.
+    /// </summary>
     private void CreateGrid()
     {
         UpdateGridOrigin();
@@ -63,11 +132,22 @@ public class PathFindingGrid : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Converts grid coordinates to world position.
+    /// </summary>
+    /// <param name="gridX">The X coordinate in the grid.</param>
+    /// <param name="gridY">The Y coordinate in the grid.</param>
+    /// <returns>The corresponding world position.</returns>
     private Vector3 GetWorldPositionFromGrid(int gridX, int gridY)
     {
         return gridWorldOrigin + new Vector3(gridX * nodeSize, gridY * nodeSize, 0);
     }
 
+    /// <summary>
+    /// Gets the node at the specified grid position.
+    /// </summary>
+    /// <param name="gridPos">The grid coordinates to retrieve the node from.</param>
+    /// <returns>The node at the specified position, or null if coordinates are out of bounds.</returns>
     public Node GetNode(Vector2Int gridPos)
     {
         if (gridPos.x >= 0 && gridPos.x < gridWidth && gridPos.y >= 0 && gridPos.y < gridHeight)
@@ -75,6 +155,11 @@ public class PathFindingGrid : MonoBehaviour
         return null;
     }
 
+    /// <summary>
+    /// Converts a world position to grid coordinates.
+    /// </summary>
+    /// <param name="worldPos">The world position to convert.</param>
+    /// <returns>The corresponding grid coordinates.</returns>
     public Vector2Int WorldToGrid(Vector3 worldPos)
     {
         UpdateGridOrigin();
@@ -84,11 +169,22 @@ public class PathFindingGrid : MonoBehaviour
         return new Vector2Int(x, y);
     }
 
+    /// <summary>
+    /// Converts grid coordinates to world position.
+    /// </summary>
+    /// <param name="gridPos">The grid coordinates to convert.</param>
+    /// <returns>The corresponding world position.</returns>
     public Vector3 GridToWorld(Vector2Int gridPos)
     {
         return GetWorldPositionFromGrid(gridPos.x, gridPos.y);
     }
 
+    /// <summary>
+    /// Gets all walkable neighboring nodes for a given node.
+    /// Filters the results of GetNeighbors to only include walkable nodes.
+    /// </summary>
+    /// <param name="node">The node to find walkable neighbors for.</param>
+    /// <returns>A list of walkable neighboring nodes.</returns>
     public List<Node> GetWalkableNeighbors(Node node)
     {
         List<Node> neighbors = GetNeighbors(node);
@@ -104,6 +200,12 @@ public class PathFindingGrid : MonoBehaviour
         return walkableNeighbors;
     }
 
+    /// <summary>
+    /// Gets all neighboring nodes (including diagonal neighbors) for a given node.
+    /// This includes both walkable and non-walkable neighbors within the grid bounds.
+    /// </summary>
+    /// <param name="node">The node to find neighbors for.</param>
+    /// <returns>A list of all neighboring nodes within grid bounds.</returns>
     public List<Node> GetNeighbors(Node node)
     {
         List<Node> neighbors = new List<Node>();
@@ -124,17 +226,29 @@ public class PathFindingGrid : MonoBehaviour
         return neighbors;
     }
 
+    /// <summary>
+    /// Sets the current path for visualization purposes.
+    /// </summary>
+    /// <param name="path">The path in world coordinates to display.</param>
     public void SetCurrentPath(List<Vector3> path)
     {
         currentPath = path;
     }
 
+    /// <summary>
+    /// Refreshes the grid by recreating all nodes and rechecking obstacles.
+    /// Only works during play mode.
+    /// </summary>
     public void RefreshGrid()
     {
         if (Application.isPlaying)
             CreateGrid();
     }
 
+    /// <summary>
+    /// Draws grid visualization gizmos in the Scene view.
+    /// Shows the grid origin, grid bounds, individual nodes colored by walkability, and current path.
+    /// </summary>
     void OnDrawGizmos()
     {
         if (!showGrid || (!Application.isEditor && !showGridInPlayMode))
@@ -142,14 +256,17 @@ public class PathFindingGrid : MonoBehaviour
 
         UpdateGridOrigin();
 
+        // Draw grid origin
         Gizmos.color = gridOriginColor;
         Gizmos.DrawWireSphere(gridWorldOrigin, nodeSize * 0.3f);
 
+        // Draw grid bounds
         Vector3 gridCenter = gridWorldOrigin + new Vector3((gridWidth - 1) * nodeSize * 0.5f, (gridHeight - 1) * nodeSize * 0.5f, 0);
         Vector3 gridSize = new Vector3(gridWidth * nodeSize, gridHeight * nodeSize, 0);
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireCube(gridCenter, gridSize);
 
+        // Draw individual nodes
         if (grid != null)
         {
             for (int x = 0; x < gridWidth; x++)
@@ -164,6 +281,7 @@ public class PathFindingGrid : MonoBehaviour
         }
         else
         {
+            // Draw preview when grid hasn't been created yet
             for (int x = 0; x < gridWidth; x++)
             {
                 for (int y = 0; y < gridHeight; y++)
@@ -176,6 +294,7 @@ public class PathFindingGrid : MonoBehaviour
             }
         }
 
+        // Draw current path
         if (currentPath != null && currentPath.Count > 1)
         {
             Gizmos.color = pathColor;
@@ -188,6 +307,10 @@ public class PathFindingGrid : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Draws additional gizmos when this GameObject is selected in the editor.
+    /// Shows grid coordinate labels for easier debugging.
+    /// </summary>
     void OnDrawGizmosSelected()
     {
         if (!showGrid) return;

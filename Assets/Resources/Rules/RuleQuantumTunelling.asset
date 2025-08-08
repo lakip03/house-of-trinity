@@ -20,7 +20,7 @@ MonoBehaviour:
   duration: -1
   raycastLength: 1.41
   raycastColor: {r: 0, g: 1, b: 1, a: 1}
-  raycastOffset: 1
+  raycastOffset: 0.91
   tunnelDistance: 1
   wallLayerMask:
     serializedVersion: 2
