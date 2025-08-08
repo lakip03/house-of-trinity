@@ -45,7 +45,6 @@ public class LevelUIManager : MonoBehaviour
     
     void SetupButtons()
     {
-        // Game Over buttons
         if (restartLevelButton != null)
         {
             restartLevelButton.onClick.AddListener(() => {
@@ -78,7 +77,6 @@ public class LevelUIManager : MonoBehaviour
             });
         }
         
-        // Win Screen buttons
         if (nextLevelButton != null)
         {
             nextLevelButton.onClick.AddListener(() => {
@@ -86,7 +84,6 @@ public class LevelUIManager : MonoBehaviour
                 NextLevel();
             });
             
-            // Hide next level button if this is the final level
             if (GameFlowController.Instance != null)
             {
                 bool isLastLevel = GameFlowController.Instance.CurrentLevel >= GameFlowController.Instance.TotalLevels;
@@ -173,8 +170,6 @@ public class LevelUIManager : MonoBehaviour
     
     void NextLevel()
     {
-        // This is typically handled automatically by GameFlowController
-        // when the level is completed, but can be called manually
         if (GameFlowController.Instance != null)
         {
             GameFlowController.Instance.LoadCardSelector();
@@ -198,7 +193,6 @@ public class LevelUIManager : MonoBehaviour
         else
         {
             Debug.LogError("No GameStateManager or GameFlowController found!");
-            // Fallback
             UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
         }
     }
@@ -215,7 +209,6 @@ public class LevelUIManager : MonoBehaviour
         }
         else
         {
-            // Fallback quit
             #if UNITY_EDITOR
                 UnityEditor.EditorApplication.isPlaying = false;
             #else
@@ -234,7 +227,6 @@ public class LevelUIManager : MonoBehaviour
         }
     }
     
-    // Methods to update UI text dynamically
     public void SetGameOverText(string reason)
     {
         if (gameOverText != null)

@@ -8,10 +8,7 @@ public class MainMenuScript : MonoBehaviour
     public Button startButton;
     public Button continueButton;
     public Button exitButton;
-    
-    [Header("UI Elements")]
-    public TextMeshProUGUI titleText;
-    public TextMeshProUGUI versionText;
+
     
     [Header("Audio")]
     public AudioClip buttonClickSound;
@@ -51,17 +48,6 @@ public class MainMenuScript : MonoBehaviour
             exitButton.onClick.AddListener(OnExitClicked);
         }
         
-        // Set version text if available
-        if (versionText != null)
-        {
-            versionText.text = $"Version {Application.version}";
-        }
-        
-        // Set title
-        if (titleText != null && titleText.text == "New Text")
-        {
-            titleText.text = "Rule Runner";
-        }
     }
     
     void UpdateContinueButtonVisibility()

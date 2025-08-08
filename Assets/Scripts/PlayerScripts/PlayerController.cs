@@ -2,6 +2,7 @@ using UnityEngine;
 using System;
 using System.Collections;
 using UnityEngine.InputSystem;
+using UnityEditor.Rendering.LookDev;
 
 public class PlayerController : MonoBehaviour
 {
@@ -31,7 +32,8 @@ public class PlayerController : MonoBehaviour
     private InputAction moveAction;
     private SpriteRenderer spriteRenderer;
     private AudioSource audioSource;
-    
+    private Animator animator;
+
     // Invincibility system
     private Coroutine invincibilityCoroutine;
     private Coroutine blinkCoroutine;
@@ -49,11 +51,15 @@ public class PlayerController : MonoBehaviour
     public bool IsAlive { get; private set; } = true;
     public Vector2 MovementInput { get; private set; }
 
+
+    private Vector2 lastMoveDirection = Vector2.down;
+
     void Start()
     {
         InitializeComponents();
         RegisterWithSystems();
         SetPlayerColor(normalColor);
+        animator = GetComponent<Animator>();
     }
 
     void InitializeComponents()
@@ -155,7 +161,31 @@ public class PlayerController : MonoBehaviour
     {
         MovementInput = moveAction.ReadValue<Vector2>();
         rb.linearVelocity = MovementInput * moveSpeed;
+
+        bool isMoving = MovementInput.magnitude > 0.1f;
+
+        animator.SetBool("isWalking", isMoving);
+
+        if (isMoving)
+        {
+
+            Vector2 normalizedInput = MovementInput.normalized;
+
+            Debug.Log($"x: {normalizedInput.x} , y: {normalizedInput.y}");
+
+            animator.SetFloat("inputX", normalizedInput.x);
+            animator.SetFloat("inputY", normalizedInput.y);
+
+            lastMoveDirection = normalizedInput;
+        }
+        else
+        {
+            Debug.Log($"LAST MOVE --> x: {lastMoveDirection.x} , y: {lastMoveDirection.y}");
+            animator.SetFloat("lastInputX", lastMoveDirection.x);
+            animator.SetFloat("lastInputX", lastMoveDirection.y);
+        }
     }
+
 
     private void UpdateInvincibilityTimer()
     {
@@ -250,7 +280,7 @@ public class PlayerController : MonoBehaviour
         StartBlinking();
         PlayInvincibilityEffects();
         OnInvincibilityStart?.Invoke(this);
-        
+
         Debug.Log("Player invincibility enabled");
     }
 
@@ -264,7 +294,7 @@ public class PlayerController : MonoBehaviour
         StopInvincibilityEffects();
         SetPlayerColor(normalColor);
         OnInvincibilityEnd?.Invoke(this);
-        
+
         Debug.Log("Player invincibility disabled");
     }
 
@@ -385,7 +415,7 @@ public class PlayerController : MonoBehaviour
     private void HandleVictory()
     {
         Debug.Log("Player reached finish line!");
-        
+
         DisablePlayer();
         PlayVictoryEffects();
         OnPlayerVictory?.Invoke(this);
@@ -417,7 +447,7 @@ public class PlayerController : MonoBehaviour
         if (!IsAlive) return;
 
         Debug.Log($"Player died: {reason}");
-        
+
         DisablePlayer();
         PlayDeathEffects();
         OnPlayerDeath?.Invoke(this);

@@ -47,16 +47,27 @@ public class GameFlowController : MonoBehaviour
     
     void Awake()
     {
-        // Singleton setup with persistence
         if (Instance == null)
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
             InitializeGameFlow();
+            EnsureLoadingScreen();
         }
         else
         {
             Destroy(gameObject);
+        }
+    }
+    
+    void EnsureLoadingScreen()
+    {
+        if (LoadingScreenManager.Instance == null)
+        {
+            GameObject loadingManagerObj = new GameObject("LoadingScreenManager");
+            loadingManagerObj.AddComponent<LoadingScreenManager>();
+            DontDestroyOnLoad(loadingManagerObj);
+            Debug.Log("Created LoadingScreenManager");
         }
     }
     
@@ -68,10 +79,8 @@ public class GameFlowController : MonoBehaviour
             audioSource = gameObject.AddComponent<AudioSource>();
         }
         
-        // Subscribe to scene loading events
         SceneManager.sceneLoaded += OnSceneLoaded;
         
-        // Subscribe to static game events
         GameStateManager.OnGameOver += HandlePlayerDeath;
         GameStateManager.OnGameWon += HandleLevelComplete;
     }
@@ -99,7 +108,7 @@ public class GameFlowController : MonoBehaviour
     {
         Debug.Log("Starting new game");
         gameFlowData.Initialize();
-        currentLevelRules.Clear(); // Clear any stored rules
+        currentLevelRules.Clear();
         ChangeState(GameState.CardSelection);
         LoadCardSelector();
     }
@@ -114,8 +123,23 @@ public class GameFlowController : MonoBehaviour
     public void ReturnToMainMenu()
     {
         Debug.Log("Returning to main menu");
+        
+        if (LoadingScreenManager.Instance != null && LoadingScreenManager.Instance.IsTransitioning)
+        {
+            Debug.Log("Scene transition in progress, ignoring main menu request");
+            return;
+        }
+        
         ChangeState(GameState.MainMenu);
-        SceneManager.LoadScene(mainMenuScene);
+        
+        if (LoadingScreenManager.Instance != null)
+        {
+            LoadingScreenManager.Instance.LoadSceneWithTransition(mainMenuScene, LoadingType.Normal);
+        }
+        else
+        {
+            SceneManager.LoadScene(mainMenuScene);
+        }
     }
     
     public void LoadCardSelector()
@@ -133,7 +157,6 @@ public class GameFlowController : MonoBehaviour
             return;
         }
         
-        // Store current rules before loading the level
         StoreCurrentRules();
         
         string levelScene = levelScenes[gameFlowData.currentLevel - 1];
@@ -161,7 +184,6 @@ public class GameFlowController : MonoBehaviour
     {
         Debug.Log($"Scene loaded: {scene.name}");
         
-        // Handle scene-specific setup
         if (scene.name == mainMenuScene)
         {
             ChangeState(GameState.MainMenu);
@@ -175,7 +197,6 @@ public class GameFlowController : MonoBehaviour
         {
             ChangeState(GameState.InLevel);
             SetupLevel();
-            // Reapply rules after level loads
             StartCoroutine(ReapplyRulesAfterSceneLoad());
         }
         else if (scene.name == endScreenScene)
@@ -193,42 +214,70 @@ public class GameFlowController : MonoBehaviour
         PlaySound(gameOverSound);
         OnPlayerDied?.Invoke();
         
-        // Return to card selector after a delay
         StartCoroutine(ReturnToCardSelectorAfterDeath());
     }
     
     void HandleLevelComplete(string reason)
     {
-        Debug.Log($"Level {gameFlowData.currentLevel} completed!");
+        Debug.Log($"Level {gameFlowData.currentLevel} completed! (Level {gameFlowData.currentLevel} of {levelScenes.Count})");
         
         PlaySound(levelCompleteSound);
         gameFlowData.levelsCompleted++;
         
-        // FIX: Check if this is the final level BEFORE incrementing
-        if (gameFlowData.currentLevel >= levelScenes.Count)
+        bool isFinalLevel = gameFlowData.currentLevel >= levelScenes.Count;
+        
+        Debug.Log($"Is final level? {isFinalLevel} (Current: {gameFlowData.currentLevel}, Total: {levelScenes.Count})");
+        
+        if (isFinalLevel)
         {
-            // Game completed!
-            Debug.Log("Final level completed! Loading end screen...");
+            Debug.Log("GAME COMPLETE! Final level beaten! Loading end screen with transition...");
             OnGameCompleted?.Invoke();
-            StartCoroutine(LoadEndScreenAfterDelay());
+            
+            if (string.IsNullOrEmpty(endScreenScene))
+            {
+                Debug.LogError("End screen scene name is empty! Setting to 'EndScreen'");
+                endScreenScene = "EndScreen";
+            }
+            
+            if (LoadingScreenManager.Instance != null)
+            {
+                Debug.Log($"Using LoadingScreenManager to load end screen: {endScreenScene}");
+                LoadingScreenManager.Instance.LoadSceneWithTransition(endScreenScene, LoadingType.GameComplete, 2f);
+            }
+            else
+            {
+                Debug.LogWarning("LoadingScreenManager not found, using direct load");
+                StartCoroutine(LoadEndScreenAfterDelay());
+            }
         }
         else
         {
-            // Move to next level
             gameFlowData.currentLevel++;
             Debug.Log($"Moving to level {gameFlowData.currentLevel}");
             OnLevelChanged?.Invoke(gameFlowData.currentLevel);
-            StartCoroutine(LoadCardSelectorAfterLevelComplete());
+            
+            if (LoadingScreenManager.Instance != null)
+            {
+                StartCoroutine(LoadCardSelectorWithTransition());
+            }
+            else
+            {
+                StartCoroutine(LoadCardSelectorAfterLevelComplete());
+            }
         }
+    }
+    
+    IEnumerator LoadCardSelectorWithTransition()
+    {
+        yield return new WaitForSeconds(1f); // Small delay for victory effects
+        LoadingScreenManager.Instance.LoadSceneWithTransition(cardSelectorScene, LoadingType.Victory, 1f);
     }
     
     void SetupCardSelector()
     {
-        // Find and configure the CardSelectionManager
         CardSelectionManager cardManager = FindAnyObjectByType<CardSelectionManager>();
         if (cardManager != null)
         {
-            // Update UI to show current level
             UpdateCardSelectorUI(cardManager);
         }
         else
@@ -239,7 +288,6 @@ public class GameFlowController : MonoBehaviour
     
     void SetupLevel()
     {
-        // Ensure RuleManager is properly set up
         if (RuleManager.Instance == null)
         {
             Debug.LogWarning("RuleManager not found, creating one");
@@ -247,7 +295,6 @@ public class GameFlowController : MonoBehaviour
             ruleManagerObj.AddComponent<RuleManager>();
         }
         
-        // Find GameStateManager for reference
         GameStateManager gameStateManager = FindAnyObjectByType<GameStateManager>();
         if (gameStateManager == null)
         {
@@ -257,7 +304,6 @@ public class GameFlowController : MonoBehaviour
     
     void SetupEndScreen()
     {
-        // Find and setup end screen with game statistics
         EndScreenManager endScreen = FindAnyObjectByType<EndScreenManager>();
         if (endScreen != null)
         {
@@ -267,11 +313,9 @@ public class GameFlowController : MonoBehaviour
     
     void UpdateCardSelectorUI(CardSelectionManager cardManager)
     {
-        // This could be enhanced to show level-specific information
         Debug.Log($"Setting up card selector for level {gameFlowData.currentLevel}");
     }
     
-    // Store current rules before changing levels
     void StoreCurrentRules()
     {
         if (RuleManager.Instance != null)
@@ -285,15 +329,12 @@ public class GameFlowController : MonoBehaviour
     // Reapply rules after scene load
     IEnumerator ReapplyRulesAfterSceneLoad()
     {
-        // Wait a frame to ensure PlayerController is initialized
         yield return null;
         
-        // Force RuleManager to find the new PlayerController
         if (RuleManager.Instance != null)
         {
             RuleManager.Instance.ForcePlayerSearch();
             
-            // Wait for player to be registered
             float timeout = 2f;
             float elapsed = 0f;
             while (!RuleManager.Instance.IsPlayerReady && elapsed < timeout)
@@ -302,15 +343,12 @@ public class GameFlowController : MonoBehaviour
                 elapsed += 0.1f;
             }
             
-            // If we have stored rules, reapply them
             if (currentLevelRules.Count > 0)
             {
                 Debug.Log($"Reapplying {currentLevelRules.Count} rules to new level");
                 
-                // Clear any existing rules first
                 RuleManager.Instance.ClearAllRules();
                 
-                // Reapply stored rules
                 foreach (Rule rule in currentLevelRules)
                 {
                     if (rule != null)
@@ -337,8 +375,33 @@ public class GameFlowController : MonoBehaviour
     
     IEnumerator LoadEndScreenAfterDelay()
     {
-        yield return new WaitForSeconds(3f); // Wait for final victory celebration
-        LoadEndScreen();
+        Debug.Log("LoadEndScreenAfterDelay coroutine started - waiting 3 seconds...");
+        yield return new WaitForSeconds(3f);
+        
+        Debug.Log($"Wait complete. Now loading end screen: {endScreenScene}");
+        
+        if (string.IsNullOrEmpty(endScreenScene))
+        {
+            Debug.LogError("endScreenScene is null or empty! Using 'EndScreen' as fallback");
+            endScreenScene = "EndScreen";
+        }
+        
+        Time.timeScale = 1f;
+        
+        try
+        {
+            Debug.Log($"Attempting to load scene: {endScreenScene}");
+            LoadEndScreen();
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Failed to load end screen: {e.Message}");
+            Debug.LogError("Make sure the EndScreen scene is added to Build Settings!");
+            
+            // Fallback: try to return to main menu
+            Debug.Log("Falling back to main menu...");
+            SceneManager.LoadScene(mainMenuScene);
+        }
     }
     
     void ChangeState(GameState newState)
@@ -370,15 +433,18 @@ public class GameFlowController : MonoBehaviour
         #endif
     }
     
-    // Public method for debugging/testing
-    [ContextMenu("Debug - Next Level")]
-    public void DebugNextLevel()
+    [ContextMenu("Debug - Load End Screen")]
+    public void DebugLoadEndScreen()
     {
-        if (gameFlowData.currentLevel < levelScenes.Count)
-        {
-            gameFlowData.currentLevel++;
-            Debug.Log($"Debug: Advanced to level {gameFlowData.currentLevel}");
-        }
+        Debug.Log("Debug: Forcing load of end screen");
+        LoadEndScreen();
+    }
+    
+    [ContextMenu("Debug - Complete Current Level")]
+    public void DebugCompleteCurrentLevel()
+    {
+        Debug.Log($"Debug: Simulating completion of level {gameFlowData.currentLevel}");
+        HandleLevelComplete("Debug completion");
     }
     
     [ContextMenu("Debug - Reset Game")]

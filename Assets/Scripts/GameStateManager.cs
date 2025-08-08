@@ -14,10 +14,8 @@ public class GameStateManager : MonoBehaviour
     [Header("Debug")]
     public bool freezeTimeOnGameOver = true;
     
-    // Singleton pattern for easy access
     public static GameStateManager Instance { get; private set; }
     
-    // Static events that can be accessed from anywhere
     public static event Action<string> OnGameOver;
     public static event Action<string> OnGameWon;
     
@@ -39,7 +37,6 @@ public class GameStateManager : MonoBehaviour
     {
         if (gameOverCanvasGroup == null)
         {
-            // Try to find game over screen in scene
             GameObject gameOverScreen = GameObject.Find("GameOverScr");
             if (gameOverScreen != null)
             {
@@ -49,7 +46,6 @@ public class GameStateManager : MonoBehaviour
         
         if (gameWinCanvasGroup == null)
         {
-            // Try to find win screen in scene
             GameObject winScreen = GameObject.Find("WinScreen");
             if (winScreen != null)
             {
@@ -92,14 +88,27 @@ public class GameStateManager : MonoBehaviour
             player.enabled = false;
         }
         
-        ShowWinScreen();
-        
-        if (freezeTimeOnGameOver)
+        bool isFinalLevel = false;
+        if (GameFlowController.Instance != null)
         {
-            Time.timeScale = 0f;
+            isFinalLevel = GameFlowController.Instance.CurrentLevel >= GameFlowController.Instance.TotalLevels;
+            Debug.Log($"GameWon - Is final level? {isFinalLevel} (Level {GameFlowController.Instance.CurrentLevel} of {GameFlowController.Instance.TotalLevels})");
         }
         
-        // Trigger static event
+        if (!isFinalLevel)
+        {
+            ShowWinScreen();
+            
+            if (freezeTimeOnGameOver)
+            {
+                Time.timeScale = 0f;
+            }
+        }
+        else
+        {
+            Debug.Log("Final level completed - skipping win screen, letting GameFlowController handle end screen transition");
+        }
+        
         OnGameWon?.Invoke("Won");
     }
 
@@ -133,7 +142,6 @@ public class GameStateManager : MonoBehaviour
             Time.timeScale = 0f;
         }
         
-        // Trigger static event
         OnGameOver?.Invoke(reason);
     }
     
@@ -165,7 +173,6 @@ public class GameStateManager : MonoBehaviour
     {
         Debug.Log("Restarting current level");
         
-        // Reset time scale
         Time.timeScale = 1f;
         
         if (GameFlowController.Instance != null)
@@ -175,7 +182,6 @@ public class GameStateManager : MonoBehaviour
         else
         {
             Debug.LogError("GameFlowController not found! Cannot restart level.");
-            // Fallback - reload current scene
             UnityEngine.SceneManagement.SceneManager.LoadScene(
                 UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
         }
@@ -185,7 +191,6 @@ public class GameStateManager : MonoBehaviour
     {
         Debug.Log("Going back to card selection");
         
-        // Reset time scale
         Time.timeScale = 1f;
         
         if (GameFlowController.Instance != null)
@@ -195,7 +200,6 @@ public class GameStateManager : MonoBehaviour
         else
         {
             Debug.LogError("GameFlowController not found! Cannot return to card selector.");
-            // Fallback - try to load card selector scene
             UnityEngine.SceneManagement.SceneManager.LoadScene("CardSelector");
         }
     }
@@ -204,7 +208,6 @@ public class GameStateManager : MonoBehaviour
     {
         Debug.Log("Returning to main menu");
         
-        // Reset time scale
         Time.timeScale = 1f;
         
         if (GameFlowController.Instance != null)
@@ -222,13 +225,10 @@ public class GameStateManager : MonoBehaviour
     {
         Debug.Log("Proceeding to next level");
         
-        // Reset time scale
         Time.timeScale = 1f;
         
         if (GameFlowController.Instance != null)
         {
-            // The GameFlowController will handle level progression automatically
-            // when GameWon is called, so this method might not be needed
             GameFlowController.Instance.LoadCardSelector();
         }
         else
@@ -241,7 +241,6 @@ public class GameStateManager : MonoBehaviour
     {
         Debug.Log("Quitting Game");
         
-        // Reset time scale before quitting
         Time.timeScale = 1f;
         
         if (GameFlowController.Instance != null)
@@ -260,10 +259,8 @@ public class GameStateManager : MonoBehaviour
     
     void OnDestroy()
     {
-        // Reset time scale when destroyed to prevent issues
         Time.timeScale = 1f;
         
-        // Clear singleton reference if this was the instance
         if (Instance == this)
         {
             Instance = null;
