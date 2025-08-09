@@ -19,7 +19,7 @@ public class RuleQuantumTunnelling : Rule
             Debug.LogWarning($"[{ruleName}] ActivateRule called with null player - rule will be activated when player is available");
             return;
         }
-        lastTunnelTime = -tunnelCooldown; // Allow immediate first tunnel
+        lastTunnelTime = -tunnelCooldown; 
     }
 
     public override void DeactivateRule(PlayerController player)
@@ -113,7 +113,6 @@ public class RuleQuantumTunnelling : Rule
             }
         }
 
-        // Draw debug line to show the through-wall check
         Debug.DrawLine(rayStart, rayStart + rayDirection * (tunnelDistance + 1f), 
                       hitWall ? Color.green : Color.red, 0.1f);
 

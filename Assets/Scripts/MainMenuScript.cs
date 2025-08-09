@@ -39,7 +39,6 @@ public class MainMenuScript : MonoBehaviour
         if (continueButton != null)
         {
             continueButton.onClick.AddListener(OnContinueClicked);
-            // Check if there's a game in progress to show/hide continue button
             UpdateContinueButtonVisibility();
         }
         
@@ -56,7 +55,6 @@ public class MainMenuScript : MonoBehaviour
         
         bool hasGameInProgress = false;
         
-        // Check if GameFlowController exists and has progress
         if (GameFlowController.Instance != null)
         {
             hasGameInProgress = GameFlowController.Instance.CurrentLevel > 1;
@@ -147,7 +145,6 @@ public class MainMenuScript : MonoBehaviour
         #endif
     }
     
-    // Called when GameFlowController state changes
     void OnGameFlowStateChanged(GameState newState)
     {
         if (newState == GameState.MainMenu)
@@ -158,7 +155,6 @@ public class MainMenuScript : MonoBehaviour
     
     void OnEnable()
     {
-        // Subscribe to GameFlowController events if available
         if (GameFlowController.Instance != null)
         {
             GameFlowController.Instance.OnGameStateChanged += OnGameFlowStateChanged;
@@ -167,7 +163,6 @@ public class MainMenuScript : MonoBehaviour
     
     void OnDisable()
     {
-        // Unsubscribe from events
         if (GameFlowController.Instance != null)
         {
             GameFlowController.Instance.OnGameStateChanged -= OnGameFlowStateChanged;

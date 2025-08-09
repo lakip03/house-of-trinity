@@ -36,7 +36,6 @@ public class RuleManager : MonoBehaviour
             InitializeRules();
             LogQueue("RuleManager initialized, waiting for PlayerController");
             
-            // Subscribe to scene loaded event
             SceneManager.sceneLoaded += OnSceneLoaded;
         }
         else
@@ -64,21 +63,17 @@ public class RuleManager : MonoBehaviour
     {
         LogQueue($"Scene loaded: {scene.name}");
         
-        // Reset player ready state when entering a new scene
         if (IsLevelScene(scene.name))
         {
             LogQueue("Level scene detected, resetting player state and searching for PlayerController");
             ResetPlayerState();
             
-            // Give the scene a frame to initialize, then search for player
             StartCoroutine(DelayedPlayerSearch());
         }
     }
     
-    // Check if this is a level scene (not menu or card selector)
     bool IsLevelScene(string sceneName)
     {
-        // Check if it's a level scene (customize this based on your scene naming)
         return sceneName.Contains("Level") && 
                !sceneName.Contains("Menu") && 
                !sceneName.Contains("Card") &&
@@ -87,13 +82,11 @@ public class RuleManager : MonoBehaviour
     
     System.Collections.IEnumerator DelayedPlayerSearch()
     {
-        // Wait one frame for scene objects to initialize
         yield return null;
         
         LogQueue("Performing delayed player search...");
         TryFindAndRegisterPlayer();
         
-        // If still not found, keep trying for a few seconds
         float timeout = 3f;
         float elapsed = 0f;
         
@@ -173,7 +166,6 @@ public class RuleManager : MonoBehaviour
         
         LogQueue($"PlayerController registered! Processing {ruleActionQueue.Count} queued actions");
         
-        // Re-activate all currently active rules for the new player
         ReactivateRulesForNewPlayer();
         
         ProcessQueue();
@@ -183,7 +175,6 @@ public class RuleManager : MonoBehaviour
         LogQueue("Rule management system active with player");
     }
     
-    // Reactivate rules when a new player is found (for scene transitions)
     void ReactivateRulesForNewPlayer()
     {
         if (activeRules.Count > 0 && playerController != null)
@@ -304,10 +295,8 @@ public class RuleManager : MonoBehaviour
     {
         if (!isPlayerReady)
         {
-            // Clear the active rules list immediately even if player isn't ready
             activeRules.Clear();
             
-            // Also queue a clear action for when player becomes ready
             ruleActionQueue.Enqueue(new QueuedRuleAction(RuleActionType.Clear));
             LogQueue($"Cleared active rules and queued clear action (Queue: {ruleActionQueue.Count})");
             return;
@@ -468,7 +457,6 @@ public class RuleManager : MonoBehaviour
     
     void OnDestroy()
     {
-        // Unsubscribe from scene loaded event
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 }

@@ -43,7 +43,6 @@ public class GameFlowController : MonoBehaviour
     public float TotalPlayTime => gameFlowData.totalPlayTime;
     
     private AudioSource audioSource;
-    // REMOVED: private List<Rule> currentLevelRules = new List<Rule>(); // We don't want to store rules anymore
     
     void Awake()
     {
@@ -109,7 +108,6 @@ public class GameFlowController : MonoBehaviour
         Debug.Log("Starting new game");
         gameFlowData.Initialize();
         
-        // Clear any existing rules when starting new game
         ClearAllRules();
         
         ChangeState(GameState.CardSelection);
@@ -120,7 +118,6 @@ public class GameFlowController : MonoBehaviour
     {
         Debug.Log($"Continuing game from level {gameFlowData.currentLevel}");
         
-        // Clear rules when continuing to allow fresh selection
         ClearAllRules();
         
         ChangeState(GameState.CardSelection);
@@ -137,7 +134,6 @@ public class GameFlowController : MonoBehaviour
             return;
         }
         
-        // Clear rules when returning to main menu
         ClearAllRules();
         
         ChangeState(GameState.MainMenu);
@@ -156,7 +152,6 @@ public class GameFlowController : MonoBehaviour
     {
         Debug.Log($"Loading card selector for level {gameFlowData.currentLevel}");
         
-        // Clear rules before loading card selector to ensure fresh selection
         ClearAllRules();
         
         ChangeState(GameState.CardSelection);
@@ -171,7 +166,6 @@ public class GameFlowController : MonoBehaviour
             return;
         }
         
-        // REMOVED: StoreCurrentRules(); - We don't want to store rules anymore
         
         string levelScene = levelScenes[gameFlowData.currentLevel - 1];
         Debug.Log($"Starting level {gameFlowData.currentLevel}: {levelScene}");
@@ -190,7 +184,6 @@ public class GameFlowController : MonoBehaviour
     {
         Debug.Log("Loading end screen - Game Complete!");
         
-        // Clear rules at game completion
         ClearAllRules();
         
         ChangeState(GameState.GameComplete);
@@ -215,7 +208,6 @@ public class GameFlowController : MonoBehaviour
         {
             ChangeState(GameState.InLevel);
             SetupLevel();
-            // REMOVED: StartCoroutine(ReapplyRulesAfterSceneLoad()); - We don't want to reapply rules
         }
         else if (scene.name == endScreenScene)
         {
@@ -232,15 +224,13 @@ public class GameFlowController : MonoBehaviour
         PlaySound(gameOverSound);
         OnPlayerDied?.Invoke();
         
-        // Clear rules when player dies to allow new selection
         StartCoroutine(ClearRulesAndReturnToCardSelector());
     }
     
     IEnumerator ClearRulesAndReturnToCardSelector()
     {
-        yield return new WaitForSeconds(2f); // Wait for death animation/UI
+        yield return new WaitForSeconds(2f);
         
-        // Clear rules before going back to card selector
         ClearAllRules();
         LoadCardSelector();
     }
@@ -252,7 +242,6 @@ public class GameFlowController : MonoBehaviour
         PlaySound(levelCompleteSound);
         gameFlowData.levelsCompleted++;
         
-        // Clear rules when level is completed
         ClearAllRules();
         
         bool isFinalLevel = gameFlowData.currentLevel >= levelScenes.Count;
@@ -300,7 +289,7 @@ public class GameFlowController : MonoBehaviour
     
     IEnumerator LoadCardSelectorWithTransition()
     {
-        yield return new WaitForSeconds(1f); // Small delay for victory effects
+        yield return new WaitForSeconds(1f);
         LoadingScreenManager.Instance.LoadSceneWithTransition(cardSelectorScene, LoadingType.Victory, 1f);
     }
     
@@ -347,7 +336,6 @@ public class GameFlowController : MonoBehaviour
         Debug.Log($"Setting up card selector for level {gameFlowData.currentLevel}");
     }
     
-    // NEW METHOD: Clear all rules in RuleManager
     void ClearAllRules()
     {
         if (RuleManager.Instance != null)
@@ -356,7 +344,6 @@ public class GameFlowController : MonoBehaviour
             Debug.Log("Cleared all rules from RuleManager");
         }
         
-        // Also clear any persistence
         if (RulePersistenceManager.HasSelection())
         {
             RulePersistenceManager.ClearSelection();
@@ -364,12 +351,9 @@ public class GameFlowController : MonoBehaviour
         }
     }
     
-    // REMOVED: StoreCurrentRules method - no longer needed
-    // REMOVED: ReapplyRulesAfterSceneLoad coroutine - no longer needed
-    
     IEnumerator LoadCardSelectorAfterLevelComplete()
     {
-        yield return new WaitForSeconds(2f); // Wait for victory animation/UI
+        yield return new WaitForSeconds(2f); 
         LoadCardSelector();
     }
     
@@ -398,7 +382,6 @@ public class GameFlowController : MonoBehaviour
             Debug.LogError($"Failed to load end screen: {e.Message}");
             Debug.LogError("Make sure the EndScreen scene is added to Build Settings!");
             
-            // Fallback: try to return to main menu
             Debug.Log("Falling back to main menu...");
             SceneManager.LoadScene(mainMenuScene);
         }
@@ -451,7 +434,7 @@ public class GameFlowController : MonoBehaviour
     public void DebugResetGame()
     {
         gameFlowData.Initialize();
-        ClearAllRules(); // Clear rules on reset
+        ClearAllRules(); 
         Debug.Log("Debug: Game data reset");
     }
     

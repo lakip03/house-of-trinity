@@ -24,11 +24,6 @@ public class PlayerController : MonoBehaviour
     public AudioClip victorySound;
     public AudioClip invincibilitySound;
 
-    [Header("Visual Effects")]
-    public ParticleSystem deathParticles;
-    public ParticleSystem victoryParticles;
-    public ParticleSystem invincibilityParticles;
-
     // Components
     private Rigidbody2D rb;
     private PlayerInput playerInput;
@@ -54,7 +49,6 @@ public class PlayerController : MonoBehaviour
     public bool IsAlive { get; private set; } = true;
     public Vector2 MovementInput { get; private set; }
 
-
     private Vector2 lastMoveDirection = Vector2.down;
 
     void Start()
@@ -67,7 +61,6 @@ public class PlayerController : MonoBehaviour
 
     void InitializeComponents()
     {
-        // Get required components
         rb = GetComponent<Rigidbody2D>();
         if (rb == null)
         {
@@ -92,14 +85,12 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        // Get or create audio source
         audioSource = GetComponent<AudioSource>();
         if (audioSource == null)
         {
             audioSource = gameObject.AddComponent<AudioSource>();
         }
 
-        // Setup input action
         moveAction = playerInput.actions["Move"];
         if (moveAction == null)
         {
@@ -111,7 +102,6 @@ public class PlayerController : MonoBehaviour
 
     void RegisterWithSystems()
     {
-        // Register with RuleManager
         if (RuleManager.Instance != null)
         {
             RuleManager.Instance.RegisterPlayerController(this);
@@ -120,7 +110,6 @@ public class PlayerController : MonoBehaviour
         else
         {
             Debug.LogWarning("RuleManager.Instance is null when PlayerController started!");
-            // Try to find and register later
             StartCoroutine(TryRegisterWithRuleManagerLater());
         }
 
@@ -184,7 +173,6 @@ public class PlayerController : MonoBehaviour
             animator.SetFloat("lastInputY", lastMoveDirection.y);
         }
     }
-
 
     private void UpdateInvincibilityTimer()
     {
@@ -277,7 +265,7 @@ public class PlayerController : MonoBehaviour
 
         isInvincible = true;
         StartBlinking();
-        PlayInvincibilityEffects();
+        PlaySound(invincibilitySound);
         OnInvincibilityStart?.Invoke(this);
 
         Debug.Log("Player invincibility enabled");
@@ -290,7 +278,6 @@ public class PlayerController : MonoBehaviour
         isInvincible = false;
         InvincibilityTimeRemaining = 0f;
         StopBlinking();
-        StopInvincibilityEffects();
         SetPlayerColor(normalColor);
         OnInvincibilityEnd?.Invoke(this);
 
@@ -337,54 +324,13 @@ public class PlayerController : MonoBehaviour
 
     #endregion
 
-    #region Audio and Visual Effects
-
-    private void PlayInvincibilityEffects()
-    {
-        PlaySound(invincibilitySound);
-        PlayParticles(invincibilityParticles);
-    }
-
-    private void StopInvincibilityEffects()
-    {
-        StopParticles(invincibilityParticles);
-    }
-
-    private void PlayDeathEffects()
-    {
-        PlaySound(deathSound);
-        PlayParticles(deathParticles);
-        SetPlayerColor(Color.red); // Death color
-    }
-
-    private void PlayVictoryEffects()
-    {
-        PlaySound(victorySound);
-        PlayParticles(victoryParticles);
-        SetPlayerColor(Color.green); // Victory color
-    }
+    #region Audio Effects
 
     private void PlaySound(AudioClip clip)
     {
         if (audioSource != null && clip != null)
         {
             audioSource.PlayOneShot(clip);
-        }
-    }
-
-    private void PlayParticles(ParticleSystem particles)
-    {
-        if (particles != null)
-        {
-            particles.Play();
-        }
-    }
-
-    private void StopParticles(ParticleSystem particles)
-    {
-        if (particles != null)
-        {
-            particles.Stop();
         }
     }
 
@@ -416,7 +362,8 @@ public class PlayerController : MonoBehaviour
         Debug.Log("Player reached finish line!");
 
         DisablePlayer();
-        PlayVictoryEffects();
+        PlaySound(victorySound);
+        SetPlayerColor(Color.green);
         OnPlayerVictory?.Invoke(this);
 
         if (GameStateManager.Instance != null)
@@ -448,7 +395,8 @@ public class PlayerController : MonoBehaviour
         Debug.Log($"Player died: {reason}");
 
         DisablePlayer();
-        PlayDeathEffects();
+        PlaySound(deathSound);
+        SetPlayerColor(Color.red);
         OnPlayerDeath?.Invoke(this);
 
         if (GameStateManager.Instance != null)
@@ -530,10 +478,6 @@ public class PlayerController : MonoBehaviour
         {
             GameFlowController.Instance.OnGameStateChanged -= OnGameStateChanged;
         }
-
-        StopParticles(deathParticles);
-        StopParticles(victoryParticles);
-        StopParticles(invincibilityParticles);
     }
 
     void OnDisable()

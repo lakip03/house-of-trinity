@@ -5,38 +5,98 @@ using UnityEngine.SceneManagement;
 using System.Collections;
 
 /// <summary>
-/// Manages End Screen UI and statistics
+/// Controls the end screen UI in a Unity game, displaying performance statistics,
+/// managing button interactions, playing victory effects, and handling scene transitions.
 /// </summary>
 public class EndScreenManager : MonoBehaviour
 {
     [Header("UI References")]
+    /// <summary>
+    /// Text element displaying a congratulatory message upon completing the game.
+    /// </summary>
     public TextMeshProUGUI congratulationsText;
+
+    /// <summary>
+    /// Optional extra stats text (currently unused in logic).
+    /// </summary>
     public TextMeshProUGUI statsText;
+
+    /// <summary>
+    /// Button for restarting the game from the beginning.
+    /// </summary>
     public Button playAgainButton;
+
+    /// <summary>
+    /// Button for returning to the main menu.
+    /// </summary>
     public Button mainMenuButton;
+
+    /// <summary>
+    /// Button for quitting the game entirely.
+    /// </summary>
     public Button quitButton;
 
     [Header("Statistics Display")]
+    /// <summary>
+    /// UI element showing the number of levels completed.
+    /// </summary>
     public TextMeshProUGUI levelsCompletedText;
+
+    /// <summary>
+    /// UI element showing the total number of player deaths.
+    /// </summary>
     public TextMeshProUGUI totalDeathsText;
+
+    /// <summary>
+    /// UI element showing the total play time in mm:ss format.
+    /// </summary>
     public TextMeshProUGUI totalPlayTimeText;
+
+    /// <summary>
+    /// UI element showing the final calculated score.
+    /// </summary>
     public TextMeshProUGUI finalScoreText;
 
     [Header("Visual Effects")]
+    /// <summary>
+    /// Particle effect played on victory.
+    /// </summary>
     public ParticleSystem celebrationParticles;
+
+    /// <summary>
+    /// CanvasGroup used to fade in the end screen UI.
+    /// </summary>
     public CanvasGroup fadeGroup;
+
+    /// <summary>
+    /// Duration in seconds for the fade-in animation.
+    /// </summary>
     public float fadeInDuration = 1f;
 
     [Header("Audio")]
+    /// <summary>
+    /// Music clip played during the victory screen.
+    /// </summary>
     public AudioClip victoryMusic;
+
+    /// <summary>
+    /// Sound effect played when a button is clicked.
+    /// </summary>
     public AudioClip buttonClickSound;
 
     [Header("Scene References")]
+    /// <summary>
+    /// Name of the main menu scene to load when returning to the main menu.
+    /// </summary>
     public string mainMenuScene = "MainMenu";
 
     private AudioSource audioSource;
     private GameFlowData gameData;
 
+    /// <summary>
+    /// Unity lifecycle method. Initializes the audio source, configures UI listeners,
+    /// starts the fade-in animation, plays music, and triggers celebration effects.
+    /// </summary>
     void Start()
     {
         audioSource = GetComponent<AudioSource>();
@@ -48,7 +108,6 @@ public class EndScreenManager : MonoBehaviour
         SetupUI();
         StartCoroutine(FadeInScreen());
 
-        // Play victory music
         if (victoryMusic != null)
         {
             audioSource.clip = victoryMusic;
@@ -56,16 +115,17 @@ public class EndScreenManager : MonoBehaviour
             audioSource.Play();
         }
 
-        // Start celebration effects
         if (celebrationParticles != null)
         {
             celebrationParticles.Play();
         }
     }
 
+    /// <summary>
+    /// Sets up button event listeners and initializes fade group transparency.
+    /// </summary>
     void SetupUI()
     {
-        // Setup button listeners
         if (playAgainButton != null)
         {
             playAgainButton.onClick.AddListener(OnPlayAgainClicked);
@@ -81,24 +141,25 @@ public class EndScreenManager : MonoBehaviour
             quitButton.onClick.AddListener(OnQuitClicked);
         }
 
-        // Initially hide the screen for fade-in effect
         if (fadeGroup != null)
         {
             fadeGroup.alpha = 0f;
         }
     }
 
+    /// <summary>
+    /// Populates the end screen UI with game statistics and the calculated final score.
+    /// </summary>
+    /// <param name="data">The <see cref="GameFlowData"/> containing performance information.</param>
     public void DisplayGameStats(GameFlowData data)
     {
         gameData = data;
 
-        // Display congratulations message
         if (congratulationsText != null)
         {
-            congratulationsText.text = "🎉 CONGRATULATIONS! 🎉\nYou have completed all levels!";
+            congratulationsText.text = " CONGRATULATIONS! \nYou have completed all levels!";
         }
 
-        // Display individual stats
         if (levelsCompletedText != null)
         {
             levelsCompletedText.text = $"Levels Completed: {data.levelsCompleted}";
@@ -115,80 +176,52 @@ public class EndScreenManager : MonoBehaviour
             totalPlayTimeText.text = $"Total Play Time: {formattedTime}";
         }
 
-        // Calculate and display final score
         int finalScore = CalculateFinalScore(data);
         if (finalScoreText != null)
         {
             finalScoreText.text = $"Final Score: {finalScore}";
         }
-
-        // Display comprehensive stats
-        if (statsText != null)
-        {
-            statsText.text = GenerateStatsText(data, finalScore);
-        }
     }
 
-    string GenerateStatsText(GameFlowData data, int finalScore)
-    {
-        string formattedTime = FormatTime(data.totalPlayTime);
-        float averageDeathsPerLevel = data.levelsCompleted > 0 ? (float)data.playerDeaths / data.levelsCompleted : 0f;
-
-        string performanceRating = GetPerformanceRating(data.playerDeaths, data.totalPlayTime);
-
-        return $@"🏆 GAME COMPLETE! 🏆
-
-📊 Your Statistics:
-━━━━━━━━━━━━━━━━━━━━
-• Levels Completed: {data.levelsCompleted}
-• Total Deaths: {data.playerDeaths}
-• Play Time: {formattedTime}
-• Avg Deaths/Level: {averageDeathsPerLevel:F1}
-
-🎯 Performance: {performanceRating}
-🏅 Final Score: {finalScore} points
-
-Thank you for playing!";
-    }
-
-    string GetPerformanceRating(int deaths, float playTime)
-    {
-        if (deaths == 0)
-            return "PERFECT! 🌟";
-        else if (deaths <= 3)
-            return "EXCELLENT! 🥇";
-        else if (deaths <= 6)
-            return "GREAT! 🥈";
-        else if (deaths <= 10)
-            return "GOOD! 🥉";
-        else
-            return "COMPLETED! 👍";
-    }
-
+    /// <summary>
+    /// Calculates the player's final score based on performance metrics.
+    /// 
+    /// Scoring breakdown:
+    /// - Base Score: 1000 points per completed level.
+    /// - Death Bonus: Starts at 500 points, reduced by 50 points per death (max penalty 500 points).
+    /// - Time Bonus: Additional points for faster completion:
+    ///     &lt; 5 min   → +300 points
+    ///     &lt; 10 min  → +200 points
+    ///     &lt; 15 min  → +100 points
+    /// - Perfect Bonus: +1000 points if no deaths occurred.
+    /// </summary>
+    /// <param name="data">The <see cref="GameFlowData"/> containing performance information.</param>
+    /// <returns>The total calculated score.</returns>
     int CalculateFinalScore(GameFlowData data)
     {
-        // Base score for completion
         int baseScore = data.levelsCompleted * 1000;
 
-        // Bonus for low deaths (max 500 bonus)
         int deathPenalty = Mathf.Min(data.playerDeaths * 50, 500);
         int deathBonus = 500 - deathPenalty;
 
-        // Time bonus (faster completion = higher bonus, max 300)
         int timeBonus = 0;
-        if (data.totalPlayTime < 300f) // Under 5 minutes
+        if (data.totalPlayTime < 300f)
             timeBonus = 300;
-        else if (data.totalPlayTime < 600f) // Under 10 minutes
+        else if (data.totalPlayTime < 600f)
             timeBonus = 200;
-        else if (data.totalPlayTime < 900f) // Under 15 minutes
+        else if (data.totalPlayTime < 900f)
             timeBonus = 100;
 
-        // Perfect run bonus (no deaths)
         int perfectBonus = data.playerDeaths == 0 ? 1000 : 0;
 
         return baseScore + deathBonus + timeBonus + perfectBonus;
     }
 
+    /// <summary>
+    /// Formats a time value from seconds into a mm:ss string.
+    /// </summary>
+    /// <param name="timeInSeconds">The time value in seconds.</param>
+    /// <returns>A formatted string in mm:ss format.</returns>
     string FormatTime(float timeInSeconds)
     {
         int minutes = Mathf.FloorToInt(timeInSeconds / 60f);
@@ -196,6 +229,9 @@ Thank you for playing!";
         return $"{minutes:00}:{seconds:00}";
     }
 
+    /// <summary>
+    /// Coroutine to gradually fade in the end screen UI.
+    /// </summary>
     IEnumerator FadeInScreen()
     {
         if (fadeGroup == null) yield break;
@@ -212,6 +248,9 @@ Thank you for playing!";
         fadeGroup.alpha = 1f;
     }
 
+    /// <summary>
+    /// Called when the "Play Again" button is clicked. Restarts the game or returns to the main menu if the GameFlowController is missing.
+    /// </summary>
     void OnPlayAgainClicked()
     {
         PlayButtonSound();
@@ -223,11 +262,13 @@ Thank you for playing!";
         else
         {
             Debug.LogError("GameFlowController not found! Cannot restart game.");
-            // Fallback - load main menu
             SceneManager.LoadScene(mainMenuScene);
         }
     }
 
+    /// <summary>
+    /// Called when the "Main Menu" button is clicked. Loads the main menu scene.
+    /// </summary>
     void OnMainMenuClicked()
     {
         PlayButtonSound();
@@ -238,11 +279,13 @@ Thank you for playing!";
         }
         else
         {
-            // Fallback
             SceneManager.LoadScene(mainMenuScene);
         }
     }
 
+    /// <summary>
+    /// Called when the "Quit" button is clicked. Quits the game or stops play mode in the Unity Editor.
+    /// </summary>
     void OnQuitClicked()
     {
         PlayButtonSound();
@@ -253,15 +296,17 @@ Thank you for playing!";
         }
         else
         {
-            // Fallback quit
 #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;
 #else
-                Application.Quit();
+            Application.Quit();
 #endif
         }
     }
 
+    /// <summary>
+    /// Plays the button click sound effect if available.
+    /// </summary>
     void PlayButtonSound()
     {
         if (audioSource != null && buttonClickSound != null)
@@ -270,14 +315,17 @@ Thank you for playing!";
         }
     }
 
-    // Debug method for testing
+    /// <summary>
+    /// Test utility method that simulates displaying the end screen with sample data.
+    /// Can be triggered from the Unity context menu.
+    /// </summary>
     [ContextMenu("Test End Screen")]
     void TestEndScreen()
     {
         GameFlowData testData = ScriptableObject.CreateInstance<GameFlowData>();
         testData.levelsCompleted = 3;
         testData.playerDeaths = 5;
-        testData.totalPlayTime = 420f; // 7 minutes
+        testData.totalPlayTime = 420f;
 
         DisplayGameStats(testData);
     }
