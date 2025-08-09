@@ -171,10 +171,7 @@ public class PlayerController : MonoBehaviour
 
         if (isMoving)
         {
-
             Vector2 normalizedInput = MovementInput.normalized;
-
-            Debug.Log($"x: {normalizedInput.x} , y: {normalizedInput.y}");
 
             animator.SetFloat("inputX", normalizedInput.x);
             animator.SetFloat("inputY", normalizedInput.y);
@@ -183,7 +180,6 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            Debug.Log($"LAST MOVE --> x: {lastMoveDirection.x} , y: {lastMoveDirection.y}");
             animator.SetFloat("lastInputX", lastMoveDirection.x);
             animator.SetFloat("lastInputY", lastMoveDirection.y);
         }

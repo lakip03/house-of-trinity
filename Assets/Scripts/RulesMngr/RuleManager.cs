@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using System;
+using UnityEngine.SceneManagement;
 
 public class RuleManager : MonoBehaviour
 {
@@ -34,6 +35,9 @@ public class RuleManager : MonoBehaviour
             DontDestroyOnLoad(gameObject);
             InitializeRules();
             LogQueue("RuleManager initialized, waiting for PlayerController");
+            
+            // Subscribe to scene loaded event
+            SceneManager.sceneLoaded += OnSceneLoaded;
         }
         else
         {
@@ -55,6 +59,64 @@ public class RuleManager : MonoBehaviour
         }
     }
     
+    // Called when a new scene is loaded
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        LogQueue($"Scene loaded: {scene.name}");
+        
+        // Reset player ready state when entering a new scene
+        if (IsLevelScene(scene.name))
+        {
+            LogQueue("Level scene detected, resetting player state and searching for PlayerController");
+            ResetPlayerState();
+            
+            // Give the scene a frame to initialize, then search for player
+            StartCoroutine(DelayedPlayerSearch());
+        }
+    }
+    
+    // Check if this is a level scene (not menu or card selector)
+    bool IsLevelScene(string sceneName)
+    {
+        // Check if it's a level scene (customize this based on your scene naming)
+        return sceneName.Contains("Level") && 
+               !sceneName.Contains("Menu") && 
+               !sceneName.Contains("Card") &&
+               !sceneName.Contains("End");
+    }
+    
+    System.Collections.IEnumerator DelayedPlayerSearch()
+    {
+        // Wait one frame for scene objects to initialize
+        yield return null;
+        
+        LogQueue("Performing delayed player search...");
+        TryFindAndRegisterPlayer();
+        
+        // If still not found, keep trying for a few seconds
+        float timeout = 3f;
+        float elapsed = 0f;
+        
+        while (!isPlayerReady && elapsed < timeout)
+        {
+            yield return new WaitForSeconds(0.1f);
+            elapsed += 0.1f;
+            TryFindAndRegisterPlayer();
+        }
+        
+        if (!isPlayerReady)
+        {
+            Debug.LogError("Failed to find PlayerController after timeout!");
+        }
+    }
+    
+    void ResetPlayerState()
+    {
+        isPlayerReady = false;
+        playerController = null;
+        LogQueue("Player state reset for new scene");
+    }
+    
     private void InitializeRules()
     {
         Rule[] allRules = Resources.LoadAll<Rule>("Rules");
@@ -68,7 +130,28 @@ public class RuleManager : MonoBehaviour
         
         if (playerController == null)
         {
+            // Try multiple methods to find the player
             playerController = FindAnyObjectByType<PlayerController>();
+            
+            if (playerController == null)
+            {
+                // Try finding by tag
+                GameObject playerObj = GameObject.FindWithTag("Player");
+                if (playerObj != null)
+                {
+                    playerController = playerObj.GetComponent<PlayerController>();
+                }
+            }
+            
+            if (playerController == null)
+            {
+                // Try finding by name
+                GameObject playerObj = GameObject.Find("Player");
+                if (playerObj != null)
+                {
+                    playerController = playerObj.GetComponent<PlayerController>();
+                }
+            }
         }
         
         if (playerController != null && !isPlayerReady)
@@ -79,9 +162,9 @@ public class RuleManager : MonoBehaviour
     
     public void RegisterPlayerController(PlayerController player)
     {
-        if (isPlayerReady)
+        if (player == null)
         {
-            LogQueue("PlayerController already registered");
+            Debug.LogWarning("Attempted to register null PlayerController");
             return;
         }
         
@@ -90,11 +173,32 @@ public class RuleManager : MonoBehaviour
         
         LogQueue($"PlayerController registered! Processing {ruleActionQueue.Count} queued actions");
         
+        // Re-activate all currently active rules for the new player
+        ReactivateRulesForNewPlayer();
+        
         ProcessQueue();
         ProcessPersistentRules();
         OnPlayerReady?.Invoke();
         
-        LogQueue("Rule management system active");
+        LogQueue("Rule management system active with player");
+    }
+    
+    // Reactivate rules when a new player is found (for scene transitions)
+    void ReactivateRulesForNewPlayer()
+    {
+        if (activeRules.Count > 0 && playerController != null)
+        {
+            LogQueue($"Reactivating {activeRules.Count} active rules for new player");
+            
+            foreach (Rule rule in activeRules.ToList())
+            {
+                if (rule != null)
+                {
+                    rule.ActivateRule(playerController);
+                    LogQueue($"Reactivated rule: {rule.ruleName}");
+                }
+            }
+        }
     }
     
     private void ProcessQueue()
@@ -200,8 +304,12 @@ public class RuleManager : MonoBehaviour
     {
         if (!isPlayerReady)
         {
+            // Clear the active rules list immediately even if player isn't ready
+            activeRules.Clear();
+            
+            // Also queue a clear action for when player becomes ready
             ruleActionQueue.Enqueue(new QueuedRuleAction(RuleActionType.Clear));
-            LogQueue($"Queued clear all rules (Queue: {ruleActionQueue.Count})");
+            LogQueue($"Cleared active rules and queued clear action (Queue: {ruleActionQueue.Count})");
             return;
         }
         
@@ -224,7 +332,16 @@ public class RuleManager : MonoBehaviour
         
         activeRules.Add(rule);
         rule.OnRuleSelected();
-        rule.ActivateRule(playerController);
+        
+        if (playerController != null)
+        {
+            rule.ActivateRule(playerController);
+        }
+        else
+        {
+            Debug.LogWarning($"Added rule {rule.ruleName} but no player controller available yet");
+        }
+        
         rule.isActive = true;
         
         OnRulesChanged?.Invoke();
@@ -239,7 +356,11 @@ public class RuleManager : MonoBehaviour
             return false;
         }
         
-        rule.DeactivateRule(playerController);
+        if (playerController != null)
+        {
+            rule.DeactivateRule(playerController);
+        }
+        
         rule.OnRuleRemoved();
         activeRules.Remove(rule);
         rule.isActive = false;
@@ -257,13 +378,23 @@ public class RuleManager : MonoBehaviour
         }
         
         Rule oldRule = activeRules[index];
-        oldRule.DeactivateRule(playerController);
+        
+        if (playerController != null)
+        {
+            oldRule.DeactivateRule(playerController);
+        }
+        
         oldRule.OnRuleRemoved();
         oldRule.isActive = false;
         
         activeRules[index] = newRule;
         newRule.OnRuleSelected();
-        newRule.ActivateRule(playerController);
+        
+        if (playerController != null)
+        {
+            newRule.ActivateRule(playerController);
+        }
+        
         newRule.isActive = true;
         
         OnRulesChanged?.Invoke();
@@ -274,7 +405,10 @@ public class RuleManager : MonoBehaviour
     {
         foreach (Rule rule in activeRules.ToList())
         {
-            rule.DeactivateRule(playerController);
+            if (playerController != null)
+            {
+                rule.DeactivateRule(playerController);
+            }
             rule.OnRuleRemoved();
             rule.isActive = false;
         }
@@ -330,5 +464,11 @@ public class RuleManager : MonoBehaviour
         {
             Debug.Log($"[RuleManager] {message}");
         }
+    }
+    
+    void OnDestroy()
+    {
+        // Unsubscribe from scene loaded event
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 }
