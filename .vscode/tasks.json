@@ -1,0 +1,33 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Generate Unity Docs",
+            "type": "shell",
+            "command": "docfx",
+            "args": ["build", "docfx.json", "--serve"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Init DocFX",
+            "type": "shell",
+            "command": "bash",
+            "args": ["-c", "[ ! -f docfx.json ] && docfx init -q || echo 'DocFX already initialized'"],
+            "group": "build"
+        },
+        {
+            "label": "Quick Build Docs",
+            "type": "shell",
+            "command": "docfx",
+            "args": ["build", "docfx.json"],
+            "group": "build"
+        }
+    ]
+}

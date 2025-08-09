@@ -2,7 +2,10 @@ using UnityEngine;
 using System;
 using System.Collections;
 using UnityEngine.InputSystem;
-using UnityEditor.Rendering.LookDev;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 
 public class PlayerController : MonoBehaviour
 {
@@ -182,7 +185,7 @@ public class PlayerController : MonoBehaviour
         {
             Debug.Log($"LAST MOVE --> x: {lastMoveDirection.x} , y: {lastMoveDirection.y}");
             animator.SetFloat("lastInputX", lastMoveDirection.x);
-            animator.SetFloat("lastInputX", lastMoveDirection.y);
+            animator.SetFloat("lastInputY", lastMoveDirection.y);
         }
     }
 
