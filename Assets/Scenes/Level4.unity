@@ -216,6 +216,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 57f2872e03ef5f231907371ead9bf698, type: 3}
+--- !u!114 &15286600 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3393862177635825420, guid: 57f2872e03ef5f231907371ead9bf698, type: 3}
+  m_PrefabInstance: {fileID: 15286599}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &89584131
 GameObject:
   m_ObjectHideFlags: 0
@@ -6670,7 +6681,7 @@ PrefabInstance:
     - target: {fileID: 467568306494511171, guid: 01a02d079a74fb3ae9142d957eef6635, type: 3}
       propertyPath: player
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1471933963}
     - target: {fileID: 467568306494511171, guid: 01a02d079a74fb3ae9142d957eef6635, type: 3}
       propertyPath: moveSpeed
       value: 5
@@ -6779,7 +6790,7 @@ PrefabInstance:
     - target: {fileID: 467568306494511171, guid: 01a02d079a74fb3ae9142d957eef6635, type: 3}
       propertyPath: player
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1471933963}
     - target: {fileID: 467568306494511171, guid: 01a02d079a74fb3ae9142d957eef6635, type: 3}
       propertyPath: moveSpeed
       value: 5
@@ -7080,7 +7091,7 @@ PrefabInstance:
     - target: {fileID: 467568306494511171, guid: 01a02d079a74fb3ae9142d957eef6635, type: 3}
       propertyPath: player
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1471933963}
     - target: {fileID: 467568306494511171, guid: 01a02d079a74fb3ae9142d957eef6635, type: 3}
       propertyPath: moveSpeed
       value: 5
@@ -13170,7 +13181,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   restartLevelButton: {fileID: 0}
-  retryWithNewRulesButton: {fileID: 0}
+  retryWithNewRulesButton: {fileID: 15286600}
   gameOverMainMenuButton: {fileID: 0}
   gameOverQuitButton: {fileID: 0}
   gameOverText: {fileID: 0}
@@ -13477,7 +13488,7 @@ PrefabInstance:
     - target: {fileID: 467568306494511171, guid: 01a02d079a74fb3ae9142d957eef6635, type: 3}
       propertyPath: player
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1471933963}
     - target: {fileID: 8706730663048380906, guid: 01a02d079a74fb3ae9142d957eef6635, type: 3}
       propertyPath: m_LocalPosition.x
       value: -10.12

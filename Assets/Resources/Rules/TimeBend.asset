@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: TimeBend
   m_EditorClassIdentifier: 
   ruleName: Time Bend
-  ruleDescription: You must finish the level in 20 secunds or die
+  ruleDescription: You must finish the level in 20 secunds
   ruleType: 3
   ruleCard: {fileID: -8695192023320573306, guid: 41501879ee210f2e68484d2fd72630c5, type: 3}
   isActive: 0

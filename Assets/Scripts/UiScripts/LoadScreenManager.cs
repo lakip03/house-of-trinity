@@ -14,9 +14,7 @@ using TMPro;
 ///     • Normal loading
 ///     • Victory loading
 ///     • Game complete loading
-/// - Optional progress bar updates during async scene load.
 /// - Fade-in and fade-out animations with customizable durations.
-/// - Optional extra delay before loading the target scene.
 /// 
 /// Typical usage:
 /// Call <see cref="LoadSceneWithTransition"/> with a target scene name and optional 
@@ -98,7 +96,7 @@ public class LoadingScreenManager : MonoBehaviour
         canvasObj.transform.SetParent(transform);
         Canvas canvas = canvasObj.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-        canvas.sortingOrder = 9999; // Ensure it's on top
+        canvas.sortingOrder = 9999;
 
         CanvasScaler scaler = canvasObj.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;

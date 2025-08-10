@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SprintRule
   m_EditorClassIdentifier: 
   ruleName: Sprint
-  ruleDescription: Your movement speed is increased to double the normal rate.
+  ruleDescription: Your movement speed is doubled
   ruleType: 0
   ruleCard: {fileID: -5960807248038239785, guid: 9e6014627582c5140b2c47d1aa105c71, type: 3}
   isActive: 1

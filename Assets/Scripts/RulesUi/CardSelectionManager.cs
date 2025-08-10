@@ -62,9 +62,8 @@ public class CardSelectionManager : MonoBehaviour
         if (levelInfoText != null && GameFlowController.Instance != null)
         {
             int currentLevel = GameFlowController.Instance.CurrentLevel;
-            int totalLevels = GameFlowController.Instance.TotalLevels;
 
-            levelInfoText.text = $"Level {currentLevel} of {totalLevels}";
+            levelInfoText.text = $"Level {currentLevel}";
 
             string flavorText = GetLevelFlavorText(currentLevel);
             if (!string.IsNullOrEmpty(flavorText))
@@ -80,8 +79,10 @@ public class CardSelectionManager : MonoBehaviour
         {
             1 => "Welcome to your first challenge!",
             2 => "The difficulty increases...",
-            3 => "The final test awaits!",
-            _ => "Good luck!"
+            3 => "Oh you are so good",
+            4 => "Library awaits",
+            5 => "Final challange are you ready!",
+            _ => "Prepare for your next level"
         };
     }
 
@@ -299,15 +300,16 @@ public class CardSelectionManager : MonoBehaviour
             switch (currentPhase)
             {
                 case SelectionPhase.SelectingPositive:
-                    instructionText.text = $"Select {totalPositiveRulesNeeded} Positive Rules\n(Movement, Health, or Temporal)";
+                    instructionText.text = $"First select {totalPositiveRulesNeeded} positive rules";
                     break;
                 case SelectionPhase.SelectingRestriction:
-                    instructionText.text = $"Select {totalRestrictionRulesNeeded} Restriction Rule";
+                    instructionText.text = $"Now select {totalRestrictionRulesNeeded} restriction rule";
                     break;
             }
         }
     }
 
+    // FOR DEBUGING == NOT USED
     void UpdateSelectionCount()
     {
         if (selectionCountText != null)

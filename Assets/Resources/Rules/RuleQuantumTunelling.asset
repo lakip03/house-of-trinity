@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: RuleQuantumTunelling
   m_EditorClassIdentifier: 
   ruleName: Quantum Tunneling
-  ruleDescription: You can move through walls that are exactly one tile thick.
+  ruleDescription: You can move through walls that are one tile thick
   ruleType: 0
   ruleCard: {fileID: 3202952231153532867, guid: 5939912e8a49469dfbe285b38e6d1bb2, type: 3}
   isActive: 1
@@ -26,3 +26,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   tunnelCooldown: 0.7
+  shakeIntensity: 1
+  shakeDuration: 0.65
+  tunnelSound: {fileID: 8300000, guid: 7b88e568af5862d3ab0ece43ada594bd, type: 3}
