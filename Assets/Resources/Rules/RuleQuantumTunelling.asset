@@ -15,7 +15,7 @@ MonoBehaviour:
   ruleName: Quantum Tunneling
   ruleDescription: You can move through walls that are exactly one tile thick.
   ruleType: 0
-  ruleCard: {fileID: 0}
+  ruleCard: {fileID: 3202952231153532867, guid: 5939912e8a49469dfbe285b38e6d1bb2, type: 3}
   isActive: 1
   duration: -1
   raycastLength: 1.41

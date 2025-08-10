@@ -15,7 +15,7 @@ MonoBehaviour:
   ruleName: Cold Feet
   ruleDescription: You must move every second
   ruleType: 3
-  ruleCard: {fileID: 0}
+  ruleCard: {fileID: 466553587898160568, guid: f02d368584c8d572c8fc63162216204e, type: 3}
   isActive: 1
   duration: -1
   maxIdleTime: 1

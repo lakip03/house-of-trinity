@@ -24,7 +24,6 @@ public class GameFlowControllerBootstrap : MonoBehaviour
     
     void Awake()
     {
-        // Only create if one doesn't already exist
         if (GameFlowController.Instance == null)
         {
             CreateGameFlowController();
@@ -39,18 +38,15 @@ public class GameFlowControllerBootstrap : MonoBehaviour
         
         if (gameFlowControllerPrefab != null)
         {
-            // Use the prefab if assigned
             flowControllerObj = Instantiate(gameFlowControllerPrefab);
             flowControllerObj.name = "GameFlowController";
             Debug.Log("GameFlowController created from prefab");
         }
         else
         {
-            // Create basic GameFlowController
             flowControllerObj = new GameObject("GameFlowController");
             GameFlowController controller = flowControllerObj.AddComponent<GameFlowController>();
             
-            // Configure the controller with our settings
             ConfigureGameFlowController(controller);
             Debug.Log("Basic GameFlowController created and configured");
         }
@@ -58,12 +54,10 @@ public class GameFlowControllerBootstrap : MonoBehaviour
     
     void ConfigureGameFlowController(GameFlowController controller)
     {
-        // Set scene names
         controller.mainMenuScene = mainMenuScene;
         controller.cardSelectorScene = cardSelectorScene;
         controller.endScreenScene = endScreenScene;
         
-        // Set level scenes
         controller.levelScenes.Clear();
         foreach (string levelScene in levelScenes)
         {

@@ -16,7 +16,7 @@ MonoBehaviour:
   ruleDescription: ' You gain complete invulnerability to all enemy attacks and effects
     for a duration of 20 seconds.'
   ruleType: 1
-  ruleCard: {fileID: 0}
+  ruleCard: {fileID: 5138558532375939589, guid: 99168ed90d16885f5a5f63ccda9ab809, type: 3}
   isActive: 1
   duration: 20
   shieldDuration: 20

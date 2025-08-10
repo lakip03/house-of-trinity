@@ -15,7 +15,7 @@ MonoBehaviour:
   ruleName: Time Bend
   ruleDescription: You must finish the level in 20 secunds or die
   ruleType: 3
-  ruleCard: {fileID: 0}
+  ruleCard: {fileID: -8695192023320573306, guid: 41501879ee210f2e68484d2fd72630c5, type: 3}
   isActive: 0
   duration: -1
   timeLimit: 20

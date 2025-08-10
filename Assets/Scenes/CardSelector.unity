@@ -588,7 +588,7 @@ MonoBehaviour:
   m_StartCorner: 0
   m_StartAxis: 0
   m_CellSize: {x: 87.3, y: 92.8}
-  m_Spacing: {x: 12.6, y: 271.1}
+  m_Spacing: {x: -21.7, y: 271.1}
   m_Constraint: 0
   m_ConstraintCount: 2
 --- !u!1 &642444750
@@ -2141,6 +2141,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 271285810}
     m_Modifications:
+    - target: {fileID: 339168122987510394, guid: 6ec8557ca9e7f64fd90edbbafb7a3afc, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 97
+      objectReference: {fileID: 0}
+    - target: {fileID: 339168122987510394, guid: 6ec8557ca9e7f64fd90edbbafb7a3afc, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -370
+      objectReference: {fileID: 0}
     - target: {fileID: 1416102092798482583, guid: 6ec8557ca9e7f64fd90edbbafb7a3afc, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5

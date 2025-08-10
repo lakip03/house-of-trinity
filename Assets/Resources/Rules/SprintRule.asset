@@ -15,6 +15,6 @@ MonoBehaviour:
   ruleName: Sprint
   ruleDescription: Your movement speed is increased to double the normal rate.
   ruleType: 0
-  ruleCard: {fileID: 0}
+  ruleCard: {fileID: -5960807248038239785, guid: 9e6014627582c5140b2c47d1aa105c71, type: 3}
   isActive: 1
   duration: -1
