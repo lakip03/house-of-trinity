@@ -114,8 +114,16 @@ public class RuleQuantumTunnelling : Rule
 
         if (IsDestinationClear(tunnelDestination))
         {
-            ExecuteTunnel(player, tunnelDestination);
-            return true;
+             if (HasWallInTunnelDirection(player.transform.position, direction))
+            {
+                ExecuteTunnel(player, tunnelDestination);
+                return true;
+            }
+            else
+            {
+                Debug.Log("Tunnel blocked: No wall detected in movement direction from player position");
+                return false;
+            }
         }
 
         return false;
@@ -228,6 +236,28 @@ public class RuleQuantumTunnelling : Rule
         return collider.CompareTag("Wall") ||
                collider.name.Contains("Wall") ||
                collider.gameObject.layer == LayerMask.NameToLayer("Wall");
+    }
+
+     private bool HasWallInTunnelDirection(Vector3 playerPosition, Vector2 direction)
+    {
+        float checkDistance = tunnelDistance * 0.8f;
+        
+        RaycastHit2D hit = Physics2D.Raycast(playerPosition, direction, checkDistance, wallLayerMask);
+        
+        bool hasWall = hit.collider != null && IsWallObject(hit.collider);
+        
+        // Debug visualization
+        if (hasWall)
+        {
+            Debug.DrawLine(playerPosition, hit.point, Color.green, 0.2f);
+            Debug.DrawLine(hit.point, playerPosition + (Vector3)(direction * checkDistance), Color.yellow, 0.2f);
+        }
+        else
+        {
+            Debug.DrawRay(playerPosition, direction * checkDistance, Color.red, 0.2f);
+        }
+        
+        return hasWall;
     }
 
     private void DrawDebugRaycast(Vector2 origin, Vector2 direction, RaycastHit2D hit)
