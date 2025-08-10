@@ -154,8 +154,14 @@ public class GameFlowController : MonoBehaviour
         
         ClearAllRules();
         
-        ChangeState(GameState.CardSelection);
-        SceneManager.LoadScene(cardSelectorScene);
+           if (LoadingScreenManager.Instance != null)
+        {
+            LoadingScreenManager.Instance.LoadSceneWithTransition(cardSelectorScene, LoadingType.Normal);
+        }
+        else
+        {
+            SceneManager.LoadScene(cardSelectorScene);
+        }
     }
     
     public void StartCurrentLevel()

@@ -235,6 +235,17 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 974048436}
   m_SourcePrefab: {fileID: 100100000, guid: 57f2872e03ef5f231907371ead9bf698, type: 3}
+--- !u!114 &15286600 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3393862177635825420, guid: 57f2872e03ef5f231907371ead9bf698, type: 3}
+  m_PrefabInstance: {fileID: 15286599}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &89584131
 GameObject:
   m_ObjectHideFlags: 0
@@ -13061,63 +13072,6 @@ RectTransform:
   m_AnchoredPosition: {x: -220.5933, y: -0.00012017}
   m_SizeDelta: {x: 126.8035, y: 21.762}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!1 &1471519088
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1471519090}
-  - component: {fileID: 1471519089}
-  m_Layer: 0
-  m_Name: LevelUI
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1471519089
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1471519088}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 24a98dca0af6c8a81a4a43adc03b6661, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  restartLevelButton: {fileID: 0}
-  retryWithNewRulesButton: {fileID: 0}
-  gameOverMainMenuButton: {fileID: 0}
-  gameOverQuitButton: {fileID: 0}
-  gameOverText: {fileID: 0}
-  nextLevelButton: {fileID: 8005942348428930330}
-  winMainMenuButton: {fileID: 1841733119}
-  winQuitButton: {fileID: 6338266377911373302}
-  winText: {fileID: 0}
-  levelInfoText: {fileID: 0}
-  livesText: {fileID: 0}
-  timeText: {fileID: 0}
-  buttonClickSound: {fileID: 0}
---- !u!4 &1471519090
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1471519088}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -22.80037, y: 8.3561, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1471933962
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -13749,6 +13703,79 @@ CanvasGroup:
   m_CorrespondingSourceObject: {fileID: 4997265489516957204, guid: 41387ea92dc2b36b297868cbcf0ce8af, type: 3}
   m_PrefabInstance: {fileID: 8583260202412401350}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &1822498466038036425
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1851932829512642142, guid: 02e99a33c71f11583a956d9f1a4fc3da, type: 3}
+      propertyPath: winQuitButton
+      value: 
+      objectReference: {fileID: 6338266377911373302}
+    - target: {fileID: 1851932829512642142, guid: 02e99a33c71f11583a956d9f1a4fc3da, type: 3}
+      propertyPath: nextLevelButton
+      value: 
+      objectReference: {fileID: 8005942348428930330}
+    - target: {fileID: 1851932829512642142, guid: 02e99a33c71f11583a956d9f1a4fc3da, type: 3}
+      propertyPath: winMainMenuButton
+      value: 
+      objectReference: {fileID: 1841733119}
+    - target: {fileID: 1851932829512642142, guid: 02e99a33c71f11583a956d9f1a4fc3da, type: 3}
+      propertyPath: retryWithNewRulesButton
+      value: 
+      objectReference: {fileID: 15286600}
+    - target: {fileID: 6284481628390218222, guid: 02e99a33c71f11583a956d9f1a4fc3da, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -22.80037
+      objectReference: {fileID: 0}
+    - target: {fileID: 6284481628390218222, guid: 02e99a33c71f11583a956d9f1a4fc3da, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 8.3561
+      objectReference: {fileID: 0}
+    - target: {fileID: 6284481628390218222, guid: 02e99a33c71f11583a956d9f1a4fc3da, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6284481628390218222, guid: 02e99a33c71f11583a956d9f1a4fc3da, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6284481628390218222, guid: 02e99a33c71f11583a956d9f1a4fc3da, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6284481628390218222, guid: 02e99a33c71f11583a956d9f1a4fc3da, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6284481628390218222, guid: 02e99a33c71f11583a956d9f1a4fc3da, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6284481628390218222, guid: 02e99a33c71f11583a956d9f1a4fc3da, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6284481628390218222, guid: 02e99a33c71f11583a956d9f1a4fc3da, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6284481628390218222, guid: 02e99a33c71f11583a956d9f1a4fc3da, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6582689780616030794, guid: 02e99a33c71f11583a956d9f1a4fc3da, type: 3}
+      propertyPath: m_Name
+      value: LevelUI
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 02e99a33c71f11583a956d9f1a4fc3da, type: 3}
 --- !u!114 &6338266377911373302 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3713361884919665766, guid: 41387ea92dc2b36b297868cbcf0ce8af, type: 3}
@@ -13905,4 +13932,4 @@ SceneRoots:
   - {fileID: 1693038437}
   - {fileID: 1051818535}
   - {fileID: 712925235}
-  - {fileID: 1471519090}
+  - {fileID: 1822498466038036425}

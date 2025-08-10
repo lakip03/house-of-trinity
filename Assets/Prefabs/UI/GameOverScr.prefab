@@ -87,7 +87,7 @@ GameObject:
   - component: {fileID: 2504082764169820489}
   - component: {fileID: 458844749105874271}
   - component: {fileID: 7328095106688007458}
-  - component: {fileID: 8201697224062547920}
+  - component: {fileID: 4510634623850085994}
   m_Layer: 5
   m_Name: GameOverScr
   m_TagString: Untagged
@@ -180,7 +180,7 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!225 &8201697224062547920
+--- !u!225 &4510634623850085994
 CanvasGroup:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -553,7 +553,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 71.9
+  m_fontSize: 71.85
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1

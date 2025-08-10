@@ -14,54 +14,58 @@ public class CardSelectionManager : MonoBehaviour
     public Button backButton;
     public TextMeshProUGUI instructionText;
     public TextMeshProUGUI selectionCountText;
-    public TextMeshProUGUI levelInfoText; 
-    
+    public TextMeshProUGUI levelInfoText;
+
     [Header("Fallback Rules (if RuleManager missing)")]
-    public List<Rule> fallbackRules = new List<Rule>(); 
-    
+    public List<Rule> fallbackRules = new List<Rule>();
+
     [Header("Selected Rules Display")]
     public Transform selectedRulesContainer;
     public GameObject selectedRuleDisplayPrefab;
-    
+
     [Header("Selection Settings")]
     public int totalPositiveRulesNeeded = 2;
     public int totalRestrictionRulesNeeded = 1;
-    
+
     [Header("Audio")]
     public AudioClip cardSelectSound;
     public AudioClip cardDeselectSound;
     public AudioClip nextSound;
     public AudioClip errorSound;
-    
+
     private List<SelectableCard> allCards = new List<SelectableCard>();
     private List<Rule> selectedPositiveRules = new List<Rule>();
     private List<Rule> selectedRestrictionRules = new List<Rule>();
     private List<GameObject> selectedRuleDisplays = new List<GameObject>();
-    
+
     private SelectionPhase currentPhase = SelectionPhase.SelectingPositive;
     private AudioSource audioSource;
-    
+
     void Start()
     {
         audioSource = GetComponent<AudioSource>();
-        
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
+
         EnsureRuleManagerExists();
-        
+
         SetupUI();
         GenerateCards();
         UpdateUI();
         UpdateLevelInfo();
     }
-    
+
     void UpdateLevelInfo()
     {
         if (levelInfoText != null && GameFlowController.Instance != null)
         {
             int currentLevel = GameFlowController.Instance.CurrentLevel;
             int totalLevels = GameFlowController.Instance.TotalLevels;
-            
+
             levelInfoText.text = $"Level {currentLevel} of {totalLevels}";
-            
+
             string flavorText = GetLevelFlavorText(currentLevel);
             if (!string.IsNullOrEmpty(flavorText))
             {
@@ -69,7 +73,7 @@ public class CardSelectionManager : MonoBehaviour
             }
         }
     }
-    
+
     string GetLevelFlavorText(int level)
     {
         return level switch
@@ -80,20 +84,20 @@ public class CardSelectionManager : MonoBehaviour
             _ => "Good luck!"
         };
     }
-    
+
     void EnsureRuleManagerExists()
     {
         if (RuleManager.Instance == null)
         {
             Debug.LogWarning("RuleManager.Instance is null! Trying to find or create one...");
-            
+
             RuleManager existingManager = FindFirstObjectByType<RuleManager>();
-            
+
             if (existingManager == null)
             {
                 GameObject managerObj = new GameObject("RuleManager");
                 RuleManager newManager = managerObj.AddComponent<RuleManager>();
-                
+
                 if (fallbackRules.Count > 0)
                 {
                     newManager.availableRules.AddRange(fallbackRules);
@@ -106,7 +110,7 @@ public class CardSelectionManager : MonoBehaviour
             }
         }
     }
-    
+
     void SetupUI()
     {
         if (nextButton != null)
@@ -114,13 +118,13 @@ public class CardSelectionManager : MonoBehaviour
             nextButton.onClick.AddListener(OnNextButtonClicked);
             nextButton.interactable = false;
         }
-        
+
         if (backButton != null)
         {
             backButton.onClick.AddListener(GoBack);
         }
     }
-    
+
     void GenerateCards()
     {
         // Clear existing cards
@@ -129,15 +133,15 @@ public class CardSelectionManager : MonoBehaviour
             Destroy(child.gameObject);
         }
         allCards.Clear();
-        
+
         List<Rule> availableRules = GetAvailableRules();
-        
+
         if (availableRules.Count == 0)
         {
             Debug.LogError("No available rules found! Check RuleManager setup or fallback rules.");
             return;
         }
-        
+
         foreach (Rule rule in availableRules)
         {
             if (rule == null)
@@ -145,10 +149,10 @@ public class CardSelectionManager : MonoBehaviour
                 Debug.LogWarning("Null rule found in available rules list, skipping...");
                 continue;
             }
-            
+
             GameObject cardObj = Instantiate(cardPrefab, cardContainer);
             SelectableCard card = cardObj.GetComponent<SelectableCard>();
-            
+
             if (card != null)
             {
                 card.Initialize(rule, this);
@@ -159,21 +163,21 @@ public class CardSelectionManager : MonoBehaviour
                 Debug.LogError("SelectableCard component not found on card prefab!");
             }
         }
-        
+
         Debug.Log($"Generated {allCards.Count} cards");
     }
-    
+
     List<Rule> GetAvailableRules()
     {
         if (RuleManager.Instance != null && RuleManager.Instance.availableRules.Count > 0)
         {
             return RuleManager.Instance.availableRules.Where(r => r != null).ToList();
         }
-        
+
         Debug.LogWarning("Using fallback rules as RuleManager is not available or has no rules");
         return fallbackRules.Where(r => r != null).ToList();
     }
-    
+
     public void OnCardClicked(SelectableCard card)
     {
         switch (currentPhase)
@@ -185,11 +189,11 @@ public class CardSelectionManager : MonoBehaviour
                 HandleRestrictionRuleSelection(card);
                 break;
         }
-        
+
         UpdateUI();
         UpdateSelectedRuleDisplays();
     }
-    
+
     void HandlePositiveRuleSelection(SelectableCard card)
     {
         if (card.AssociatedRule.ruleType == RuleType.Restriction)
@@ -197,7 +201,7 @@ public class CardSelectionManager : MonoBehaviour
             PlayErrorSound();
             return;
         }
-        
+
         if (card.IsSelected)
         {
             card.SetSelected(false);
@@ -218,7 +222,7 @@ public class CardSelectionManager : MonoBehaviour
             }
         }
     }
-    
+
     void HandleRestrictionRuleSelection(SelectableCard card)
     {
         if (card.AssociatedRule.ruleType != RuleType.Restriction)
@@ -226,7 +230,7 @@ public class CardSelectionManager : MonoBehaviour
             PlayErrorSound();
             return;
         }
-        
+
         if (card.IsSelected)
         {
             card.SetSelected(false);
@@ -247,7 +251,7 @@ public class CardSelectionManager : MonoBehaviour
             }
         }
     }
-    
+
     void OnNextButtonClicked()
     {
         switch (currentPhase)
@@ -260,7 +264,7 @@ public class CardSelectionManager : MonoBehaviour
                     PlayNextSound();
                 }
                 break;
-                
+
             case SelectionPhase.SelectingRestriction:
                 if (selectedRestrictionRules.Count == totalRestrictionRulesNeeded)
                 {
@@ -268,10 +272,10 @@ public class CardSelectionManager : MonoBehaviour
                 }
                 break;
         }
-        
+
         UpdateUI();
     }
-    
+
     void ClearAllSelections()
     {
         foreach (SelectableCard card in allCards)
@@ -279,7 +283,7 @@ public class CardSelectionManager : MonoBehaviour
             card.SetSelected(false);
         }
     }
-    
+
     void UpdateUI()
     {
         UpdateInstructions();
@@ -287,7 +291,7 @@ public class CardSelectionManager : MonoBehaviour
         UpdateCardInteractability();
         UpdateNextButton();
     }
-    
+
     void UpdateInstructions()
     {
         if (instructionText != null)
@@ -303,7 +307,7 @@ public class CardSelectionManager : MonoBehaviour
             }
         }
     }
-    
+
     void UpdateSelectionCount()
     {
         if (selectionCountText != null)
@@ -319,13 +323,13 @@ public class CardSelectionManager : MonoBehaviour
             }
         }
     }
-    
+
     void UpdateCardInteractability()
     {
         foreach (SelectableCard card in allCards)
         {
             bool canInteract = false;
-            
+
             switch (currentPhase)
             {
                 case SelectionPhase.SelectingPositive:
@@ -335,18 +339,18 @@ public class CardSelectionManager : MonoBehaviour
                     canInteract = card.AssociatedRule.ruleType == RuleType.Restriction;
                     break;
             }
-            
+
             card.SetInteractable(canInteract);
         }
     }
-    
+
     void UpdateNextButton()
     {
         if (nextButton != null)
         {
             bool canProceed = false;
             string buttonText = "Next";
-            
+
             switch (currentPhase)
             {
                 case SelectionPhase.SelectingPositive:
@@ -358,9 +362,9 @@ public class CardSelectionManager : MonoBehaviour
                     buttonText = "Start Level";
                     break;
             }
-            
+
             nextButton.interactable = canProceed;
-            
+
             TextMeshProUGUI buttonTextComponent = nextButton.GetComponentInChildren<TextMeshProUGUI>();
             if (buttonTextComponent != null)
             {
@@ -368,53 +372,53 @@ public class CardSelectionManager : MonoBehaviour
             }
         }
     }
-    
+
     void UpdateSelectedRuleDisplays()
     {
         if (selectedRulesContainer == null)
             return;
-            
+
         foreach (GameObject display in selectedRuleDisplays)
         {
             if (display != null)
                 Destroy(display);
         }
         selectedRuleDisplays.Clear();
-        
+
         foreach (Rule rule in selectedPositiveRules)
         {
             CreateSelectedRuleDisplay(rule);
         }
-        
+
         foreach (Rule rule in selectedRestrictionRules)
         {
             CreateSelectedRuleDisplay(rule);
         }
     }
-    
+
     void CreateSelectedRuleDisplay(Rule rule)
     {
         if (selectedRuleDisplayPrefab == null || rule == null)
             return;
-            
+
         GameObject display = Instantiate(selectedRuleDisplayPrefab, selectedRulesContainer);
         selectedRuleDisplays.Add(display);
-        
+
         Image icon = display.GetComponentInChildren<Image>();
         TextMeshProUGUI nameText = display.GetComponentInChildren<TextMeshProUGUI>();
-        
+
         if (icon != null && rule.ruleCard != null)
             icon.sprite = rule.ruleCard;
-            
+
         if (nameText != null)
             nameText.text = rule.ruleName;
     }
-    
+
     void CompleteSelection()
     {
         PlayNextSound();
         ApplySelectedRules();
-        
+
         if (GameFlowController.Instance != null)
         {
             GameFlowController.Instance.StartCurrentLevel();
@@ -425,19 +429,19 @@ public class CardSelectionManager : MonoBehaviour
             SceneManager.LoadScene("Level1");
         }
     }
-    
+
     void ApplySelectedRules()
     {
         EnsureRuleManagerExists();
-        
+
         if (RuleManager.Instance == null)
         {
             Debug.LogError("Cannot apply rules: RuleManager.Instance is still null!");
             return;
         }
-        
+
         RuleManager.Instance.ClearAllRules();
-        
+
         foreach (Rule rule in selectedPositiveRules)
         {
             if (rule != null)
@@ -446,7 +450,7 @@ public class CardSelectionManager : MonoBehaviour
                 Debug.Log($"Applied positive rule: {rule.ruleName} - Success: {success}");
             }
         }
-        
+
         foreach (Rule rule in selectedRestrictionRules)
         {
             if (rule != null)
@@ -456,7 +460,7 @@ public class CardSelectionManager : MonoBehaviour
             }
         }
     }
-    
+
     void GoBack()
     {
         if (GameFlowController.Instance != null)
@@ -468,25 +472,27 @@ public class CardSelectionManager : MonoBehaviour
             SceneManager.LoadScene("MainMenu");
         }
     }
-    
+
     void PlaySelectSound()
     {
         if (audioSource != null && cardSelectSound != null)
+        {
             audioSource.PlayOneShot(cardSelectSound);
+        }
     }
-    
+
     void PlayDeselectSound()
     {
         if (audioSource != null && cardDeselectSound != null)
             audioSource.PlayOneShot(cardDeselectSound);
     }
-    
+
     void PlayNextSound()
     {
         if (audioSource != null && nextSound != null)
             audioSource.PlayOneShot(nextSound);
     }
-    
+
     void PlayErrorSound()
     {
         if (audioSource != null && errorSound != null)

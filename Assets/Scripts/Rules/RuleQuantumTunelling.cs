@@ -1,8 +1,13 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "RuleQuantumTunnelling", menuName = "Rules/Movement/Rule Quantum Tunnelling")]
 public class RuleQuantumTunnelling : Rule
 {
+    [Header("Rule Settings")]
     [SerializeField] private float raycastLength = 5f;
     [SerializeField] private Color raycastColor = Color.cyan;
     [SerializeField] private float raycastOffset = 0.5f;
@@ -10,7 +15,17 @@ public class RuleQuantumTunnelling : Rule
     [SerializeField] private LayerMask wallLayerMask = -1;
     [SerializeField] private float tunnelCooldown = 0.7f;
 
+    [Header("Screen Shake Settings")]
+    [SerializeField] private float shakeIntensity = 0.3f;
+    [SerializeField] private float shakeDuration = 0.2f;
+
+    [Header("Audio Settings")]
+    [SerializeField] private AudioClip tunnelSound;
+
     private float lastTunnelTime = -1f;
+    private static Camera mainCamera;
+    private static Coroutine shakeCoroutine;
+    Vector3 originalCameraPosition;
 
     public override void ActivateRule(PlayerController player)
     {
@@ -19,11 +34,21 @@ public class RuleQuantumTunnelling : Rule
             Debug.LogWarning($"[{ruleName}] ActivateRule called with null player - rule will be activated when player is available");
             return;
         }
-        lastTunnelTime = -tunnelCooldown; 
+        lastTunnelTime = -tunnelCooldown;
     }
 
     public override void DeactivateRule(PlayerController player)
     {
+        if (shakeCoroutine != null && mainCamera != null)
+        {
+            MonoBehaviour cameraComponent = mainCamera.GetComponent<MonoBehaviour>();
+            if (cameraComponent != null)
+            {
+                cameraComponent.StopCoroutine(shakeCoroutine);
+                mainCamera.transform.position = originalCameraPosition;
+                shakeCoroutine = null;
+            }
+        }
     }
 
     public override void UpdateRule(PlayerController player, float deltaTime)
@@ -100,9 +125,9 @@ public class RuleQuantumTunnelling : Rule
     {
         Vector2 rayStart = wallHitPoint + direction * tunnelDistance;
         Vector2 rayDirection = -direction;
-        
+
         RaycastHit2D[] hits = Physics2D.RaycastAll(rayStart, rayDirection, tunnelDistance + 1f, wallLayerMask);
-        
+
         bool hitWall = false;
         for (int i = 0; i < hits.Length; i++)
         {
@@ -113,7 +138,7 @@ public class RuleQuantumTunnelling : Rule
             }
         }
 
-        Debug.DrawLine(rayStart, rayStart + rayDirection * (tunnelDistance + 1f), 
+        Debug.DrawLine(rayStart, rayStart + rayDirection * (tunnelDistance + 1f),
                       hitWall ? Color.green : Color.red, 0.1f);
 
         return hitWall;
@@ -139,8 +164,63 @@ public class RuleQuantumTunnelling : Rule
 
         lastTunnelTime = Time.time;
 
+        TriggerScreenShake();
+        PlayTunnelSound(player.transform.position);
+
         Debug.DrawLine(player.transform.position, destination, Color.magenta, 2f);
         Debug.Log($"Tunneled! Next tunnel available in {tunnelCooldown} seconds");
+    }
+
+    private void TriggerScreenShake()
+    {
+        if (mainCamera == null)
+        {
+            mainCamera = Camera.main;
+        }
+
+        if (shakeCoroutine == null)
+        {
+            originalCameraPosition = mainCamera.transform.position;
+        }
+
+        MonoBehaviour cameraComponent = mainCamera.GetComponent<MonoBehaviour>();
+        if (cameraComponent != null)
+        {
+            if (shakeCoroutine != null)
+            {
+                cameraComponent.StopCoroutine(shakeCoroutine);
+            }
+            shakeCoroutine = cameraComponent.StartCoroutine(ScreenShakeCoroutine());
+        }
+    }
+    private IEnumerator ScreenShakeCoroutine()
+    {
+        float elapsed = 0f;
+
+        while (elapsed < shakeDuration)
+        {
+            Vector3 randomOffset = new Vector3(
+                UnityEngine.Random.Range(-shakeIntensity, shakeIntensity),
+                UnityEngine.Random.Range(-shakeIntensity, shakeIntensity),
+                0f
+            );
+
+            float diminishFactor = 1f - (elapsed / shakeDuration);
+            mainCamera.transform.position = originalCameraPosition + randomOffset * diminishFactor;
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        mainCamera.transform.position = originalCameraPosition;
+        shakeCoroutine = null;
+    }
+    private void PlayTunnelSound(Vector3 position)
+    {
+        if (tunnelSound != null)
+        {
+            AudioSource.PlayClipAtPoint(tunnelSound, position, 500f);
+        }
     }
 
     private bool IsWallObject(Collider2D collider)
