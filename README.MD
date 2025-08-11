@@ -1,4 +1,6 @@
 # House of Trinity
+<p align = "center">
+<img src="https://github.com/lakip03/house-of-trinity/blob/main/Assets/Sprites/u3661856637_medieval_character_head_sprite_top-down_view_pixe_8094c55d-32e3-4307-ba95-12b1a48cac58_2.png?raw=true" style = "width: 250px; height: 250px;" > </p>
 
 ## Game Overview
 House of trinity is top-down maze escape game where player must navigate and escape different rooms (levels) while avoiding enemies. Player must choose 3 gameplay rules before starting each levels, of which 2 are beneficial rules that help player and one is restriction that will give player unique challenge.
@@ -17,7 +19,7 @@ By default, there is no time limit unless the chosen negative rule imposes one.
 | ----------------- | -------- | ---------------------------------------------------------------------------------- |
 | Mystical Sheild   | Health   | You gain invulnerability for 20 seconds.                                           |
 | Quantum Tunneling | Movement | You can pass through 1 tile thick walls (in game presented as library bookshelves) |
-| Sprint            | Movement | Your movement speed is doubled                                                     |\
+| Sprint            | Movement | Your movement speed is doubled                                                     | \ |
 
 #### 2 negative rules:
 | Name      | Type        | Effect                                         |
