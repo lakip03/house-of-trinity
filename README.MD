@@ -33,5 +33,3 @@ The game explores the concept of voluntary constraints by forcing players to acc
 - **Strategic Depth**: There is different strategy for each level
 - **Replayability**: Different rule lead to different gameplay of each level.
 - **Player Agency**: Success feels earned through smart planning.
-
-## Retrospective
