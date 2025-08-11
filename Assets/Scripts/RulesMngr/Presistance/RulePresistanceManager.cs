@@ -2,6 +2,9 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 
+/// <summary>
+/// Static utility class managing rule selection persistence between scenes.
+/// </summary>
 public static class RulePersistenceManager
 {
     private static RuleSelectionData currentSelection = new RuleSelectionData();

@@ -1,5 +1,9 @@
 using UnityEngine;
 
+/// <summary>
+/// Movement rule that doubles player movement speed.
+/// Simple speed modifier implementation with proper cleanup on deactivation.
+/// </summary>
 [CreateAssetMenu(fileName = "SprintRule", menuName = "Rules/Movement/Sprint Rule")]
 public class SprintRule : Rule
 {
@@ -29,6 +33,5 @@ public class SprintRule : Rule
     public override void UpdateRule(PlayerController player, float deltaTime)
     {
         if (player == null) return;
-        //TBA: Sound particles etc...
     }
 }

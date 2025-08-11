@@ -1,6 +1,10 @@
 using UnityEngine;
 using System;
 
+/// <summary>
+/// Manages level-specific game states and UI transitions for win/lose conditions.
+/// Handles game over and victory screens, coordinates with GameFlowController for scene progression.
+/// </summary>
 public class GameStateManager : MonoBehaviour
 {
     [Header("Game Over Settings")]
@@ -10,29 +14,27 @@ public class GameStateManager : MonoBehaviour
     public CanvasGroup gameWinCanvasGroup;
 
     public PlayerController player;
-    
+
     [Header("Debug")]
     public bool freezeTimeOnGameOver = true;
-    
+
     public static GameStateManager Instance { get; private set; }
-    
+
     public static event Action<string> OnGameOver;
     public static event Action<string> OnGameWon;
-    
+
     void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
-            // Don't destroy on load for level-specific GameStateManager
-            // DontDestroyOnLoad(gameObject);
         }
         else
         {
             Destroy(gameObject);
         }
     }
-    
+
     void Start()
     {
         if (gameOverCanvasGroup == null)
@@ -43,7 +45,7 @@ public class GameStateManager : MonoBehaviour
                 gameOverCanvasGroup = gameOverScreen.GetComponent<CanvasGroup>();
             }
         }
-        
+
         if (gameWinCanvasGroup == null)
         {
             GameObject winScreen = GameObject.Find("WinScreen");
@@ -52,7 +54,7 @@ public class GameStateManager : MonoBehaviour
                 gameWinCanvasGroup = winScreen.GetComponent<CanvasGroup>();
             }
         }
-        
+
         if (player == null)
         {
             player = FindAnyObjectByType<PlayerController>();
@@ -62,7 +64,7 @@ public class GameStateManager : MonoBehaviour
         {
             HideGameOverScreen();
         }
-        
+
         if (gameWinCanvasGroup != null)
         {
             HideGameWonScreen();
@@ -71,7 +73,7 @@ public class GameStateManager : MonoBehaviour
 
     private void HideGameWonScreen()
     {
-         if (gameWinCanvasGroup != null)
+        if (gameWinCanvasGroup != null)
         {
             gameWinCanvasGroup.alpha = 0f;
             gameWinCanvasGroup.interactable = false;
@@ -87,18 +89,18 @@ public class GameStateManager : MonoBehaviour
         {
             player.enabled = false;
         }
-        
+
         bool isFinalLevel = false;
         if (GameFlowController.Instance != null)
         {
             isFinalLevel = GameFlowController.Instance.CurrentLevel >= GameFlowController.Instance.TotalLevels;
             Debug.Log($"GameWon - Is final level? {isFinalLevel} (Level {GameFlowController.Instance.CurrentLevel} of {GameFlowController.Instance.TotalLevels})");
         }
-        
+
         if (!isFinalLevel)
         {
             ShowWinScreen();
-            
+
             if (freezeTimeOnGameOver)
             {
                 Time.timeScale = 0f;
@@ -108,7 +110,7 @@ public class GameStateManager : MonoBehaviour
         {
             Debug.Log("Final level completed - skipping win screen, letting GameFlowController handle end screen transition");
         }
-        
+
         OnGameWon?.Invoke("Won");
     }
 
@@ -134,17 +136,17 @@ public class GameStateManager : MonoBehaviour
         {
             player.enabled = false;
         }
-        
+
         ShowGameOverScreen();
-        
+
         if (freezeTimeOnGameOver)
         {
             Time.timeScale = 0f;
         }
-        
+
         OnGameOver?.Invoke(reason);
     }
-    
+
     private void ShowGameOverScreen()
     {
         if (gameOverCanvasGroup != null)
@@ -158,7 +160,7 @@ public class GameStateManager : MonoBehaviour
             Debug.LogError("GameOver CanvasGroup not found! Make sure GameOverScr prefab has a CanvasGroup component.");
         }
     }
-    
+
     private void HideGameOverScreen()
     {
         if (gameOverCanvasGroup != null)
@@ -168,13 +170,13 @@ public class GameStateManager : MonoBehaviour
             gameOverCanvasGroup.blocksRaycasts = false;
         }
     }
-    
+
     public void RestartGame()
     {
         Debug.Log("Restarting current level");
-        
+
         Time.timeScale = 1f;
-        
+
         if (GameFlowController.Instance != null)
         {
             GameFlowController.Instance.RestartCurrentLevel();
@@ -186,13 +188,13 @@ public class GameStateManager : MonoBehaviour
                 UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
         }
     }
-    
+
     public void RetryWithNewRules()
     {
         Debug.Log("Going back to card selection");
-        
+
         Time.timeScale = 1f;
-        
+
         if (GameFlowController.Instance != null)
         {
             GameFlowController.Instance.LoadCardSelector();
@@ -203,13 +205,13 @@ public class GameStateManager : MonoBehaviour
             UnityEngine.SceneManagement.SceneManager.LoadScene("CardSelector");
         }
     }
-    
+
     public void ReturnToMainMenu()
     {
         Debug.Log("Returning to main menu");
-        
+
         Time.timeScale = 1f;
-        
+
         if (GameFlowController.Instance != null)
         {
             GameFlowController.Instance.ReturnToMainMenu();
@@ -220,13 +222,13 @@ public class GameStateManager : MonoBehaviour
             UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
         }
     }
-    
+
     public void NextLevel()
     {
         Debug.Log("Proceeding to next level");
-        
+
         Time.timeScale = 1f;
-        
+
         if (GameFlowController.Instance != null)
         {
             GameFlowController.Instance.LoadCardSelector();
@@ -236,31 +238,31 @@ public class GameStateManager : MonoBehaviour
             Debug.LogError("GameFlowController not found! Cannot proceed to next level.");
         }
     }
-    
+
     public void QuitGame()
     {
         Debug.Log("Quitting Game");
-        
+
         Time.timeScale = 1f;
-        
+
         if (GameFlowController.Instance != null)
         {
             GameFlowController.Instance.QuitGame();
         }
         else
         {
-            #if UNITY_EDITOR
-                UnityEditor.EditorApplication.isPlaying = false;
-            #else
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#else
                 Application.Quit();
-            #endif
+#endif
         }
     }
-    
+
     void OnDestroy()
     {
         Time.timeScale = 1f;
-        
+
         if (Instance == this)
         {
             Instance = null;

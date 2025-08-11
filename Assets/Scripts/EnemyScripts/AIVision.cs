@@ -1,5 +1,10 @@
 using UnityEngine;
 
+/// <summary>
+/// Handles AI vision detection for enemy AI systems.
+/// Determines if a target is within sight range and field of view, with obstacle checking.
+/// </summary>
+
 [System.Serializable]
 public class AIVision
 {

@@ -4,6 +4,10 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
+/// <summary>
+/// Movement rule allowing players to tunnel through walls using raycasting and collision detection.
+/// Includes screen shake effects and cooldown mechanics.
+/// </summary>
 [CreateAssetMenu(fileName = "RuleQuantumTunnelling", menuName = "Rules/Movement/Rule Quantum Tunnelling")]
 public class RuleQuantumTunnelling : Rule
 {

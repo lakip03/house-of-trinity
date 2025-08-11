@@ -6,6 +6,14 @@ using UnityEngine.InputSystem;
 using UnityEditor;
 #endif
 
+/// <summary>
+/// Core player controller handling movement, input, invincibility, and game state interactions.
+/// 
+/// NOTE: This class has grown quite large and violates SRP - ideally would be split into:
+/// PlayerMovement, PlayerHealth, PlayerAudio, etc. The use of regions here is purely 
+/// for navigation as the class became unwieldy. In a real project, proper separation 
+/// of concerns would be implemented from the start.
+/// </summary>
 
 public class PlayerController : MonoBehaviour
 {

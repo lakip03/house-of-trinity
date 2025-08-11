@@ -6,21 +6,10 @@ using UnityEngine;
 /// </summary>
 public class CameraFollow : MonoBehaviour
 {
-    /// <summary>
-    /// The player that the camera should follow.
-    /// </summary>
     public Transform player;
     
-    /// <summary>
-    /// The speed at which the camera follows the target. Higher values result in faster, more responsive following.
-    /// This value is multiplied by Time.deltaTime for frame-rate independent movement.
-    /// </summary>
     public float followSpeed = 2f;
     
-    /// <summary>
-    /// The positional offset from the target that the camera should maintain.
-    /// Default value of (0, 0, -10) keeps the camera 10 units behind the target on the Z-axis.
-    /// </summary>
     public Vector3 offset = new Vector3(0, 0, -10);
 
     /// <summary>

@@ -1,5 +1,9 @@
 using UnityEngine;
 
+/// <summary>
+/// Restriction rule that forces continuous player movement.
+/// Triggers game over if player remains stationary for too long.
+/// </summary>
 [CreateAssetMenu(fileName = "ColdFeet", menuName = "Rules/Restrictions/Cold Feet")]
 public class ColdFeet : Rule
 {

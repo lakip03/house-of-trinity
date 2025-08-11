@@ -14,91 +14,33 @@ using UnityEditor;
 public class PathFindingGrid : MonoBehaviour
 {
     [Header("Grid Settings")]
-    /// <summary>
-    /// The width of the grid in number of nodes.
-    /// </summary>
     public int gridWidth = 20;
-    
-    /// <summary>
-    /// The height of the grid in number of nodes.
-    /// </summary>
     public int gridHeight = 20;
-    
-    /// <summary>
-    /// The size of each grid node in world units.
-    /// </summary>
     public float nodeSize = 1f;
-    
-    /// <summary>
-    /// Layer mask used to detect obstacles when determining node walkability.
-    /// </summary>
     public LayerMask obstacleLayer;
 
     [Header("Grid Offset")]
-    /// <summary>
-    /// Offset from the GameObject's position to place the grid origin.
-    /// </summary>
     [Tooltip("Offset from the GameObject's position")]
     public Vector2 gridOffset = Vector2.zero;
 
     [Header("Visualization")]
-    /// <summary>
-    /// Whether to show the grid visualization in the Scene view.
-    /// </summary>
     public bool showGrid = true;
-    
-    /// <summary>
-    /// Whether to show the grid visualization during play mode.
-    /// </summary>
     public bool showGridInPlayMode = false;
-    
-    /// <summary>
-    /// Color used to display walkable nodes in the grid visualization.
-    /// </summary>
     public Color walkableColor = Color.white;
-    
-    /// <summary>
-    /// Color used to display obstacle nodes in the grid visualization.
-    /// </summary>
     public Color obstacleColor = Color.red;
-    
-    /// <summary>
-    /// Color used to display the current pathfinding path.
-    /// </summary>
     public Color pathColor = Color.green;
-    
-    /// <summary>
-    /// Color used to display the grid origin point.
-    /// </summary>
     public Color gridOriginColor = Color.yellow;
 
     [Header("Debug Info")]
-    /// <summary>
-    /// The calculated world position of the grid's origin point.
-    /// </summary>
     [SerializeField] private Vector3 gridWorldOrigin;
-
-    /// <summary>
-    /// The 2D array of nodes representing the pathfinding grid.
-    /// </summary>
     private Node[,] grid;
-    
-    /// <summary>
-    /// The current pathfinding path being visualized.
-    /// </summary>
     private List<Vector3> currentPath = new List<Vector3>();
 
-    /// <summary>
-    /// Initializes the grid when the component starts.
-    /// </summary>
     void Start()
     {
         CreateGrid();
     }
 
-    /// <summary>
-    /// Updates the grid origin when inspector values change.
-    /// </summary>
     void OnValidate()
     {
         UpdateGridOrigin();
@@ -192,7 +134,7 @@ public class PathFindingGrid : MonoBehaviour
 
         foreach (Node neighbor in neighbors)
         {
-            if (neighbor.isWalkable) // ← This check is crucial!
+            if (neighbor.isWalkable)
             {
                 walkableNeighbors.Add(neighbor);
             }

@@ -243,9 +243,3 @@ public class LoadingScreenManager : MonoBehaviour
     public bool IsTransitioning => isTransitioning;
 }
 
-public enum LoadingType
-{
-    Normal,
-    Victory,
-    GameComplete
-}

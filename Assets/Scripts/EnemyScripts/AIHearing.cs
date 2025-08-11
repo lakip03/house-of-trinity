@@ -7,19 +7,8 @@ using UnityEngine;
 [System.Serializable]
 public class AIHearing
 {
-    /// <summary>
-    /// The maximum distance at which the AI can hear targets.
-    /// </summary>
     private float radius;
-    
-    /// <summary>
-    /// Stores the result of the most recent hearing check.
-    /// </summary>
     private bool lastResult;
-    
-    /// <summary>
-    /// Gets the result of the most recent hearing detection check.
-    /// </summary>
     public bool LastResult => lastResult;
     
     /// <summary>

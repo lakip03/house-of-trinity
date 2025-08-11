@@ -1,6 +1,10 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "TimeBend", menuName = "Rules/Restriction/Time Bend")]
+/// <summary>
+/// Restriction rule implementing a countdown timer that triggers game over when expired.
+/// Uses events to communicate with UI systems for timer display and updates.
+/// </summary>
+[CreateAssetMenu(fileName = "TimeBend", menuName = "Rules/Restrictions/Time Bend")]
 public class TimeBend : Rule
 {
     [Header("Time Limit Settings")]

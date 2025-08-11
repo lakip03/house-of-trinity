@@ -12,88 +12,32 @@ public class LevelUIManager : MonoBehaviour
 {
     #region UI References
     
-    /// <summary>
-    /// Button reference for restarting the current level with the same rules.
-    /// </summary>
+
     [Header("Game Over UI")]
     public Button restartLevelButton;
-    
-    /// <summary>
-    /// Button reference for retrying the level with new randomly generated rules.
-    /// </summary>
     public Button retryWithNewRulesButton;
-    
-    /// <summary>
-    /// Button reference for returning to the main menu from game over screen.
-    /// </summary>
     public Button gameOverMainMenuButton;
-    
-    /// <summary>
-    /// Button reference for quitting the application from game over screen.
-    /// </summary>
     public Button gameOverQuitButton;
-    
-    /// <summary>
-    /// Text component displaying the game over message and reason for failure.
-    /// </summary>
     public TextMeshProUGUI gameOverText;
     
-    /// <summary>
-    /// Button reference for proceeding to the next level after winning.
-    /// Automatically hidden if the current level is the last level.
-    /// </summary>
     [Header("Win Screen UI")]
     public Button nextLevelButton;
-    
-    /// <summary>
-    /// Button reference for returning to the main menu from win screen.
-    /// </summary>
     public Button winMainMenuButton;
-    
-    /// <summary>
-    /// Button reference for quitting the application from win screen.
-    /// </summary>
     public Button winQuitButton;
-    
-    /// <summary>
-    /// Text component displaying the victory message.
-    /// </summary>
     public TextMeshProUGUI winText;
     
-    /// <summary>
-    /// Text component displaying current level information (e.g., "Level 3/10").
-    /// </summary>
     [Header("HUD Elements")]
     public TextMeshProUGUI levelInfoText;
-    
-    /// <summary>
-    /// Text component displaying the current number of lives remaining.
-    /// </summary>
     public TextMeshProUGUI livesText;
-    
-    /// <summary>
-    /// Text component displaying the elapsed play time in MM:SS format.
-    /// </summary>
     public TextMeshProUGUI timeText;
     
-    /// <summary>
-    /// Audio clip played when any button is clicked for auditory feedback.
-    /// </summary>
     [Header("Audio")]
     public AudioClip buttonClickSound;
     
     #endregion
-    
-    /// <summary>
-    /// AudioSource component for playing button click sounds.
-    /// Created automatically if not present on the GameObject.
-    /// </summary>
     private AudioSource audioSource;
-    
-    /// <summary>
-    /// Initializes the UI manager by setting up audio, button listeners, and updating level information.
-    /// Called automatically by Unity when the GameObject becomes active.
-    /// </summary>
+
+
     void Start()
     {
         audioSource = GetComponent<AudioSource>();

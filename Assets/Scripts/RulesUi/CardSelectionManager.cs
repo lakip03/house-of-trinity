@@ -5,6 +5,11 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 
+/// <summary>
+/// Manages the card selection UI implementing the core "Three Rules" theme.
+/// Enforces exactly 3 rule selection (2 positive + 1 restriction) through a two-phase
+/// selection process with visual feedback and audio cues.
+/// </summary>
 public class CardSelectionManager : MonoBehaviour
 {
     [Header("UI References")]

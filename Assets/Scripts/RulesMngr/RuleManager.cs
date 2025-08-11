@@ -4,6 +4,9 @@ using System.Linq;
 using System;
 using UnityEngine.SceneManagement;
 
+/// <summary>
+/// Central rule management system enforcing exactly 3 active rules per level.
+/// </summary>
 public class RuleManager : MonoBehaviour
 {
     [Header("Rule Configuration")]

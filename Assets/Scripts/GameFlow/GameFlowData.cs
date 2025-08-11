@@ -1,5 +1,9 @@
 using UnityEngine;
 
+/// <summary>
+/// Persistent data container tracking player progress and statistics across the "Three Rules" game.
+/// Stores level progression, performance metrics, and current game state.
+/// </summary>
 [System.Serializable]
 public class GameFlowData : ScriptableObject
 {

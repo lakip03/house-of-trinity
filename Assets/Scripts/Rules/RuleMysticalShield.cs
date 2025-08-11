@@ -1,5 +1,8 @@
 using UnityEngine;
 
+/// <summary>
+/// Health rule granting temporary invincibility to the player.
+/// </summary>
 [CreateAssetMenu(fileName = "MysticalSheild", menuName = "Rules/Health/Mystical Sheild")]
 public class MysticalSheild : Rule
 {
@@ -34,7 +37,5 @@ public class MysticalSheild : Rule
     public override void UpdateRule(PlayerController player, float deltaTime)
     {
         if (player == null) return;
-        
-        //TBA: Sound particles etc...
     }
 }

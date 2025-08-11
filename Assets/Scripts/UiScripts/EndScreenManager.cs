@@ -11,83 +11,28 @@ using System.Collections;
 public class EndScreenManager : MonoBehaviour
 {
     [Header("UI References")]
-    /// <summary>
-    /// Text element displaying a congratulatory message upon completing the game.
-    /// </summary>
     public TextMeshProUGUI congratulationsText;
-
-    /// <summary>
-    /// Optional extra stats text (currently unused in logic).
-    /// </summary>
     public TextMeshProUGUI statsText;
-
-    /// <summary>
-    /// Button for restarting the game from the beginning.
-    /// </summary>
     public Button playAgainButton;
-
-    /// <summary>
-    /// Button for returning to the main menu.
-    /// </summary>
     public Button mainMenuButton;
-
-    /// <summary>
-    /// Button for quitting the game entirely.
-    /// </summary>
     public Button quitButton;
 
     [Header("Statistics Display")]
-    /// <summary>
-    /// UI element showing the number of levels completed.
-    /// </summary>
     public TextMeshProUGUI levelsCompletedText;
-
-    /// <summary>
-    /// UI element showing the total number of player deaths.
-    /// </summary>
     public TextMeshProUGUI totalDeathsText;
-
-    /// <summary>
-    /// UI element showing the total play time in mm:ss format.
-    /// </summary>
     public TextMeshProUGUI totalPlayTimeText;
-
-    /// <summary>
-    /// UI element showing the final calculated score.
-    /// </summary>
     public TextMeshProUGUI finalScoreText;
 
     [Header("Visual Effects")]
-    /// <summary>
-    /// Particle effect played on victory.
-    /// </summary>
     public ParticleSystem celebrationParticles;
-
-    /// <summary>
-    /// CanvasGroup used to fade in the end screen UI.
-    /// </summary>
     public CanvasGroup fadeGroup;
-
-    /// <summary>
-    /// Duration in seconds for the fade-in animation.
-    /// </summary>
     public float fadeInDuration = 1f;
 
     [Header("Audio")]
-    /// <summary>
-    /// Music clip played during the victory screen.
-    /// </summary>
     public AudioClip victoryMusic;
-
-    /// <summary>
-    /// Sound effect played when a button is clicked.
-    /// </summary>
     public AudioClip buttonClickSound;
 
     [Header("Scene References")]
-    /// <summary>
-    /// Name of the main menu scene to load when returning to the main menu.
-    /// </summary>
     public string mainMenuScene = "MainMenu";
 
     private AudioSource audioSource;
@@ -190,9 +135,9 @@ public class EndScreenManager : MonoBehaviour
     /// - Base Score: 1000 points per completed level.
     /// - Death Bonus: Starts at 500 points, reduced by 50 points per death (max penalty 500 points).
     /// - Time Bonus: Additional points for faster completion:
-    ///     &lt; 5 min   → +300 points
-    ///     &lt; 10 min  → +200 points
-    ///     &lt; 15 min  → +100 points
+    ///     &lt; 5 min   => +300 points
+    ///     &lt; 10 min  => +200 points
+    ///     &lt; 15 min  => +100 points
     /// - Perfect Bonus: +1000 points if no deaths occurred.
     /// </summary>
     /// <param name="data">The <see cref="GameFlowData"/> containing performance information.</param>

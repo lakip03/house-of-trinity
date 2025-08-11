@@ -2,6 +2,10 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
+/// <summary>
+/// Main menu UI controller with dynamic continue button visibility based on game progress.
+/// Handles navigation to game flow and includes fallback system creation for missing controllers.
+/// </summary>
 public class MainMenuScript : MonoBehaviour
 {
     [Header("Menu Buttons")]
