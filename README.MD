@@ -1,18 +1,44 @@
 # House of Trinity
 
 ## Game Overview
-House of trinity is top-down maze escape game where player must navigate and escape different rooms(levels) while avoiding enemies. Player must choose 3 gameplay rules before starting each levels, of which 2 are beneficial rules that help player and one is restriction that will give player unique challenge
+House of trinity is top-down maze escape game where player must navigate and escape different rooms (levels) while avoiding enemies. Player must choose 3 gameplay rules before starting each levels, of which 2 are beneficial rules that help player and one is restriction that will give player unique challenge.
 
 ## Game Concept
-In each level, the player:
+The game consists of five sequential levels, each designed to accommodate different rule combinations and play styles.
 
-1. Selects three rules from table of all the rules
-2. Navigates the maze, runs from enemies and tries to reach exit.
-3. If player dies he can try again with different (or same) rules but if player however wins he will be able to select new rules for the next level.
-   
+Before starting a level, the player selects two positive rules to gain advantages, then locks them in before selecting one negative (restriction) rule to create a unique challenge. With this personalized rule set, the player must navigate a maze and locate the exit door to complete the level.
 
-## Technical Implementation
-### Architecture Highlights
+By default, there is no time limit unless the chosen negative rule imposes one.
+
+### Current Rules:
+
+#### 3 Positive rules:
+| Name              | Type     | Effect                                                                             |
+| ----------------- | -------- | ---------------------------------------------------------------------------------- |
+| Mystical Sheild   | Health   | You gain invulnerability for 20 seconds.                                           |
+| Quantum Tunneling | Movement | You can pass through 1 tile thick walls (in game presented as library bookshelves) |
+| Sprint            | Movement | Your movement speed is doubled                                                     |\
+
+#### 2 negative rules:
+| Name      | Type        | Effect                                         |
+| --------- | ----------- | ---------------------------------------------- |
+| Cold Feet | Restriction | Player must move every second or die           |
+| Time Bend | Restriction | You have only 20 seconds to complete the level | \ |
+
+### Gameplay
+The maze contains patrolling enemies that will attack on contact. When idle, enemies rotate in place to scan their surroundings. Upon spotting the player, they initiate pursuit. The player cannot attack and must avoid enemies by breaking their line of sight (e.g., hiding behind a bookshelf) or by using Mystical Shield for temporary protection.
+
+### Scoring
+At the end of the game, the score is determined by:
+1) Base Score
+2) Completion time (faster is better)
+3) Number of deaths (fewer is better)
+4) Perfect Run Bonus for completing all levels without dying
+
+### Controls
+Movement is done by WASD controls exclusively.
+
+## Architecture Highlights
 - **Rules system**: Abstract base class with ScriptableObject implementation enables modular rule creation. New rules can be added by simply inheriting from the base class and implementing three core methods (Activate, Deactivate, Update), making the system highly extensible without modifying existing code.
 - **Managers**: Singleton managers handle unique responsibilities. This separation of concerns ensures clean system boundaries while providing seamless level transitions and robust state management.
 - **Event-Driven**: Decoupled communication between systems using C# events and delegates. Rules broadcast their state changes (activation/deactivation), player actions trigger events that multiple systems can respond to independently, and UI components subscribe to specific rule events (like TimeBend countdown updates). This architecture allows adding new features without modifying existing code for example, adding particle effects or audio cues to rule activations requires no changes to the core rule system.
@@ -29,7 +55,13 @@ In each level, the player:
 - Command
 
 ## Game Design Philosophy
-The game explores the concept of voluntary constraints by forcing players to accept limitations alongside benefits, every decision becomes meaningful. The "three rules" structure creates:
-- **Strategic Depth**: There is different strategy for each level
-- **Replayability**: Different rule lead to different gameplay of each level.
-- **Player Agency**: Success feels earned through smart planning.
+House of Trinity is built around the idea of voluntary constraints every advantage comes paired with a limitation, making each choice carry weight. By embracing restrictions alongside benefits, players must think strategically and adapt their approach.
+
+## Contact
+[LinkedIn](https://www.linkedin.com/in/nikolaacimovic/) \
+[Medium](https://medium.com/@lakip03) \
+Email: lakip03@gmail.com (or acimovicnikola@proton.me for secure correspondence)
+
+
+## License
+MIT License - see LICENSE file for details.

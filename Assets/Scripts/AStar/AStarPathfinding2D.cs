@@ -10,12 +10,12 @@ using UnityEngine;
 /// </summary>
 public class AStarPathfinding2D : MonoBehaviour
 {
-     /// <summary>
+    /// <summary>
     /// Attempts to find and cache the grid used for pathfinding on scene start.
     /// </summary>
     private PathFindingGrid grid;
 
-    
+
     void Start()
     {
         grid = FindAnyObjectByType<PathFindingGrid>();
